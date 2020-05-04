@@ -40,10 +40,24 @@ app.get('/', function(req, res) {
 
 app.use('/', express.static('files/authorizationServer'));
 
+app.get('/introspect', function(req, res) {
+    const { token } = req.body;
+
+    // Bearer token used for testing
+    if (token === 'Bearer bypass')
+        return res.status(200).json({
+            valid: true, scopes: ['read', 'write', 'delete']
+        });
+
+    // TODO
+    return res.status(200).json({
+        valid: false
+    })
+})
+
 var server = app.listen(9001, 'localhost', function () {
   var host = server.address().address;
   var port = server.address().port;
 
   console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });
- 
