@@ -1,10 +1,12 @@
-var express = require("express");
-var bodyParser = require('body-parser');
-var cons = require('consolidate');
-var __ = require('underscore');
+const express = require("express");
+const bodyParser = require('body-parser');
+const cons = require('consolidate');
+const __ = require('underscore');
 __.string = require('underscore.string');
 
-var app = express();
+const router = require('./files/authorizationServer/routes');
+
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,24 +17,14 @@ app.set('views', 'files/authorizationServer');
 app.set('json spaces', 4);
 
 // authorization server information
-var authServer = {
+const authServer = {
 	authorizationEndpoint: 'http://localhost:9001/authorize',
 	tokenEndpoint: 'http://localhost:9001/token'
 };
 
-// client information
-var clients = [
-	{
-		"client_id": "oauth-client-1",
-		"client_secret": "oauth-client-secret-1",
-		"redirect_uris": ["http://localhost:9000/callback"],
-		"scope": "foo bar"
-	}
-];
+const codes = {};
 
-var codes = {};
-
-var requests = {};
+const requests = {};
 
 app.get('/', function(req, res) {
 	res.render('index', {clients: clients, authServer: authServer});
@@ -40,9 +32,11 @@ app.get('/', function(req, res) {
 
 app.use('/', express.static('files/authorizationServer'));
 
-var server = app.listen(9001, 'localhost', function () {
-  var host = server.address().address;
-  var port = server.address().port;
+app.use(router);
+
+const server = app.listen(9001, 'localhost', function () {
+  const host = server.address().address;
+  const port = server.address().port;
 
   console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });
