@@ -37,8 +37,8 @@
 		  <p>Access token value: <span class="label label-danger"><%- access_token ? access_token : 'NONE' %></span></p>
 		  <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
 		  <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
-		  <button class="btn btn-default" href="/authorize" disabled>Get OAuth Token</button> 
-		  <button class="btn btn-default" href="/fetch_resource" disabled>Get Protected Resource</button> 
+		  <button id="getToken" class="btn btn-default" href="/authorize" >Get OAuth Token</button> 
+		  <button id="getResource" class="btn btn-default" href="/fetch_resource" >Get Protected Resource</button> 
       </div>
 
     </div><!-- /.container -->
@@ -48,6 +48,7 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="client.js"></script>
   </body>
 </html>
