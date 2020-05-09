@@ -1,25 +1,16 @@
-/*function encodeForAjax(data) {
-    return Object.keys(data).map(function(k){
-        return encodeURIComponent(k) + '=' + encodeURIComponent(data[k])
-    }).join('&')
-    }*/
-function getTokenListener(){
-    alert("test");
-}
-document.getElementById("getToken").addEventListener("click", function(){
-    let ajax = new XMLHttpRequest();
+const getToken = document.getElementById("getToken");
+const getResource = document.getElementById("getResource");
 
-    ajax.open("POST","http://localhost:9001/login", true);
-    ajax.onload = getTokenListener;
+const postInfo = () => {
+    axios.post("http://localhost:9001/login",{
+        clientId: "client",
+        clientSecret: "123"
+    }).then(response => {alert("Token " + response.data.token + "\n Refresh Token " + response.data.refreshToken)});
 
-    ajax.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+};
 
-    ajax.send({clientId: "client", clientSecret: 'client123'});
+const postToken = () => {
 
-});
-
-document.getElementById("getResource").addEventListener("click", function(){
-    alert("resource");
-    });
-
-
+};
+getToken.addEventListener('click',postInfo);
+getResource.addEventListener('click',postToken);

@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const cons = require('consolidate');
 const __ = require('underscore');
+const cors = require('cors');
 __.string = require('underscore.string');
 
 const router = require('./files/authorizationServer/routes');
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 app.engine('html', cons.underscore);
 app.set('view engine', 'html');
