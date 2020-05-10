@@ -7,11 +7,11 @@ app.engine('html', cons.underscore);
 app.set('view engine', 'html');
 app.set('views', 'files/client');
 
-var access_token = null;
-var refresh_token = null;
-var scope = null;
-
 app.get('/', function (req, res) {
+  const access_token = req.query.access_token;
+  const refresh_token = req.query.refresh_token;
+  const scope = req.query.scope;
+
 	res.render('index', {access_token: access_token, refresh_token: refresh_token, scope: scope});
 });
 

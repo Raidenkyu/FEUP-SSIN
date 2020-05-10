@@ -9,6 +9,8 @@ const clients = [
     {
         "client_id": "client",
 		"client_secret": "123",
+		"redirect_uris": ["http://localhost:9000/"],
+		"scope": "read write delete"
     },
 ];
 

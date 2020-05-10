@@ -33,6 +33,15 @@ app.get('/', function(req, res) {
 	res.render('index', {clients: clients, authServer: authServer});
 });
 
+app.get('/authorize', function(req, res) {
+  const client_id = req.query.client_id || '';
+  const client_secret = req.query.client_secret || '';
+  const scope = req.query.scope || '';
+  const redirect_uris = req.query.redirect_uris || '';
+
+  res.render('oauth_dialog', {client_id: client_id, client_secret, scope: scope, redirect_uris: redirect_uris});
+});
+
 app.use('/', express.static('files/authorizationServer'));
 
 app.use(router);
