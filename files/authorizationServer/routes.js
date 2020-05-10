@@ -13,7 +13,7 @@ var signOptions = {
     algorithm: "HS512",
 };
 
-router.post('/login', (req, res) => {
+router.post('/authorize', (req, res) => {
     const clientId = req.body.clientId || '';
     const clientSecret = req.body.clientSecret || '';
 

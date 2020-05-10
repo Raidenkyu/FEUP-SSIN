@@ -6,6 +6,7 @@ const cors = require('cors');
 __.string = require('underscore.string');
 
 const router = require('./files/authorizationServer/routes');
+const clients = require('./files/authorizationServer/clients');
 
 const app = express();
 
