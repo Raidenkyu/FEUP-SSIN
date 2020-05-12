@@ -1,8 +1,10 @@
 const express = require('express');
+const session = require('express-session');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const clients = require('./clients');
+const users = require('./users');
 const tokens = require('./tokens');
 
 var privateKEY = fs.readFileSync('files/keys/private.pem', 'utf8');
@@ -109,6 +111,19 @@ router.post('/verify', (req, res) => {
             "message": 'Invalid Token.'
         });
     }
+});
+
+router.post('/login', (req, res) => {
+    const clientId = req.body.client_id || '';
+    const clientSecret = req.body.client_secret || '';
+    const scope = req.body.scope || '';
+    const redirectURI = req.body.redirect_uris || '';
+    
+    let user = users.filter(
+        user => (user.id == req.body.uname && user.password === req.body.psw)
+    )[0];
+    req.session.user = user;
+    res.redirect(`http://localhost:9001/authorize?client_id=${clientId}&client_secret=${clientSecret}&scope=${scope}&redirect_uris=${redirectURI}`)
 });
 
 router.get('/introspection', (req, res) => {
