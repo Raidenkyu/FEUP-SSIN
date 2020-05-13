@@ -45,7 +45,6 @@ app.get('/authorize', function(req, res) {
   } else {
     res.redirect(`http://localhost:9001/login?client_id=${client_id}&client_secret=${client_secret}&scope=${scope}&redirect_uris=${redirect_uris}`);
   }
-  
 });
 
 app.get('/login', function(req, res) {
@@ -62,4 +61,3 @@ const server = app.listen(9001, 'localhost', function () {
 
   console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });
- 
