@@ -7,14 +7,13 @@ const clients = require('./clients');
 const users = require('./users');
 const tokens = require('./tokens');
 
-var privateKEY = fs.readFileSync('files/keys/private.pem', 'utf8');
-var publicKEY = fs.readFileSync('files/keys/private.pem', 'utf8');
+var privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
+var publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 var signOptions = {
     expiresIn: "1h",
     algorithm: "HS512",
 };
-
 
 router.post('/token', (req, res) => {
     const clientId = req.body.client_id || '';
@@ -118,7 +117,7 @@ router.post('/login', (req, res) => {
     const clientSecret = req.body.client_secret || '';
     const scope = req.body.scope || '';
     const redirectURI = req.body.redirect_uris || '';
-    
+
     let user = users.filter(
         user => (user.id == req.body.uname && user.password === req.body.psw)
     )[0];

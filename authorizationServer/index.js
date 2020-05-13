@@ -6,8 +6,8 @@ const __ = require('underscore');
 const cors = require('cors');
 __.string = require('underscore.string');
 
-const router = require('./files/authorizationServer/routes');
-const clients = require('./files/authorizationServer/clients');
+const router = require('./routes');
+const clients = require('./clients');
 
 const app = express();
 
@@ -18,7 +18,7 @@ app.use(session({secret:"cwfow131241dfeg",resave:false,saveUninitialized:true}))
 
 app.engine('html', cons.underscore);
 app.set('view engine', 'html');
-app.set('views', 'files/authorizationServer');
+app.set('views', './public');
 app.set('json spaces', 4);
 
 // authorization server information
@@ -51,7 +51,7 @@ app.get('/login', function(req, res) {
 	res.render('login');
 });
 
-app.use('/', express.static('files/authorizationServer'));
+app.use('/', express.static('./public'));
 
 app.use(router);
 
