@@ -2,18 +2,106 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
-const router = express.Router();
 const clients = require('./clients');
 const users = require('./users');
 const tokens = require('./tokens');
+const url = require('url');
 
-var privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
-var publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
+const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
+const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
-var signOptions = {
+const router = express.Router();
+
+const signOptions = {
     expiresIn: "1h",
     algorithm: "HS512",
 };
+
+// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
+// https://www.oauth.com/playground/authorization-code.html
+router.post('/new_token', (req, res) => {
+    const { grant_type } = req.body;
+
+    if (grant_type === 'authorization_code')
+        return middlewareAuthorizationCode(req, res);
+
+    if (grant_type === 'refresh_token')
+        return middlewareRefreshToken(req, res);
+
+    const message = 'Only the authorization code flow is supported by this OAuth2 server';
+
+    return res.status(400).json({
+        error: 'unsupported_grant_type',
+        error_description: message,
+    })
+});
+
+router.get('/authorize', (req, res) => {
+    const {
+        response_type,
+        client_id,
+        state
+    } = req.query;
+
+    const { user } = req.session;
+
+    const client = clients.get(client_id);
+    if (!client) {
+        // TODO friendly html page response
+        return res.status(400).json({
+            error: 'invalid_client',
+            message: 'Invalid client ' + client_id,
+        });
+    }
+
+    const redirect_uri = client.redirect_uri;
+    const scope = client.scope;
+
+    if (response_type !== 'code') {
+        return res.redirect(303, redirect_uri + '?' + qs.stringify({
+            error: 'unsupported_response_type',
+            error_description: 'Invalid response type (code required)',
+            ...(state && {state}),
+        }));
+    }
+
+    // If there is no signed in user, redirect the user's agent to the
+    // interactive login page with this endpoint as the callback.
+    if (!user) {
+        return res.redirect(303, url.format({
+            pathname: '/login',
+            query: {
+                callback: url.format({
+                    pathname: '/authorize',
+                    query: req.query
+                })
+            },
+        }));
+    }
+
+    return res.render('oauth_dialog');
+});
+
+router.post('/authorize', (req, res) => {
+    // TODO
+})
+
+// https://tools.ietf.org/html/rfc6749#section-2.3
+function middlewareAuthorizationCode(req, res) {
+    const {
+        client_id,
+        client_secret,
+        code,
+    };
+    // TODO
+}
+
+function middlewareRefreshToken(req, res) {
+    const {
+        refresh_token,
+    };
+    // TODO
+}
 
 router.post('/token', (req, res) => {
     const clientId = req.body.client_id || '';
@@ -113,6 +201,12 @@ router.post('/verify', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (!username || !password) {
+        return req.status(400).
+    }
     const clientId = req.body.client_id || '';
     const clientSecret = req.body.client_secret || '';
     const scope = req.body.scope || '';

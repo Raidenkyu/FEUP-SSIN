@@ -1,17 +1,19 @@
 // clients information
-const clients = [
-	{
-		"client_id": "oauth-client-1",
-		"client_secret": "oauth-client-secret-1",
-		"redirect_uris": ["http://localhost:9000/callback"],
-		"scope": "foo bar"
-    },
-    {
+const clients = new Map(Object.entries({
+    "client": {
         "client_id": "client",
-		"client_secret": "123",
-		"redirect_uris": ["http://localhost:9000/"],
-		"scope": "read write delete"
+        "client_secret": "123",
+        "redirect_uri": "http://localhost:9000/callback",
+        "scope": "read write delete",
     },
-];
+    "client-2": {
+        "client_id": "client-2",
+        "client_secret": "123",
+        "redirect_uri": "http://localhost:9000/callback/2",
+        "scope": "read"
+    },
+}));
 
-module.exports = clients;
+module.exports = Object.freeze({
+    get: (client_id) => clients.get(client_id)
+});

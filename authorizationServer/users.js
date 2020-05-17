@@ -1,5 +1,5 @@
 // registred users information
-const users = {
+const users = new Map(Object.freeze({
     100: {
         username: 'antonio',
 		password: '123',
@@ -20,6 +20,8 @@ const users = {
         username: 'bob',
 		password: '123',
     },
-};
+}));
 
-module.exports = Object.freeze(users);
+module.exports = Object.freeze({
+    get: (user_id) => users.get(user_id)
+});
