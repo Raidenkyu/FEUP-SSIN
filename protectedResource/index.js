@@ -12,10 +12,10 @@ app.use(cors());
 
 app.engine('html', cons.underscore);
 app.set('view engine', 'html');
-app.set('views', './public');
+app.set('views', './protectedResource/public');
 app.set('json spaces', 4);
 
-app.use('/', express.static('./public'));
+app.use('/', express.static('./protectedResource/public'));
 
 const words = new Set(["antonio", "bruno", "joao"]);
 

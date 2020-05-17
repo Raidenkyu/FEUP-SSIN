@@ -18,7 +18,7 @@ app.use(session({secret:"cwfow131241dfeg",resave:false,saveUninitialized:true}))
 
 app.engine('html', cons.underscore);
 app.set('view engine', 'html');
-app.set('views', './public');
+app.set('views', './authorizationServer/public');
 app.set('json spaces', 4);
 
 // authorization server information
@@ -51,7 +51,7 @@ app.get('/login', function(req, res) {
 	res.render('login');
 });
 
-app.use('/', express.static('./public'));
+app.use('/', express.static('./authorizationServer/public'));
 
 app.use(router);
 
