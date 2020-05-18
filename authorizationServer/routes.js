@@ -31,6 +31,14 @@ router.get('/authorize', (req, res) => {
   }
 });
 
+router.post('/authorize', (req, res) => {
+    const redirect_uris = req.body.redirect_uris || '';
+
+    const auth_code = "RandomAuthCode";
+
+    res.redirect(`${redirect_uris}?auth_code=${auth_code}`);
+});
+
 router.post('/token', (req, res) => {
     const clientId = req.body.client_id || '';
     const clientSecret = req.body.client_secret || '';
