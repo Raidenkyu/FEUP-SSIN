@@ -15,6 +15,22 @@ var signOptions = {
     algorithm: "HS512",
 };
 
+router.get('/', (req, res) => {
+	res.render('index', {clients: clients, authServer: authServer});
+});
+
+router.get('/authorize', (req, res) => {
+    const client_id = req.query.client_id || '';
+    const client_secret = req.query.client_secret || '';
+    const scope = req.query.scope || '';
+    const redirect_uris = req.query.redirect_uris || '';
+  if(req.session.user)  {
+    res.render('oauth_dialog', {client_id: client_id, client_secret, scope: scope, redirect_uris: redirect_uris});
+  } else {
+    res.redirect(`http://localhost:9001/login?client_id=${client_id}&client_secret=${client_secret}&scope=${scope}&redirect_uris=${redirect_uris}`);
+  }
+});
+
 router.post('/token', (req, res) => {
     const clientId = req.body.client_id || '';
     const clientSecret = req.body.client_secret || '';
@@ -112,16 +128,30 @@ router.post('/verify', (req, res) => {
     }
 });
 
+router.get('/login', (req, res) => {
+    const clientId = req.query.client_id || '';
+    const clientSecret = req.query.client_secret || '';
+    const scope = req.query.scope || '';
+    const redirectURI = req.query.redirect_uris || '';
+
+	res.render('login', {client_id: clientId, client_secret: clientSecret, scope: scope, redirect_uris: redirectURI});
+});
+
 router.post('/login', (req, res) => {
     const clientId = req.body.client_id || '';
     const clientSecret = req.body.client_secret || '';
     const scope = req.body.scope || '';
     const redirectURI = req.body.redirect_uris || '';
 
-    let user = users.filter(
-        user => (user.id == req.body.uname && user.password === req.body.psw)
-    )[0];
-    req.session.user = user;
+    for (var key in users) {
+        if (users.hasOwnProperty(key)) { 
+            if (users[key].username == req.body.uname && users[key].password === req.body.psw) {
+                req.session.user = users[key];
+                break;
+            }
+        }
+    }
+
     res.redirect(`http://localhost:9001/authorize?client_id=${clientId}&client_secret=${clientSecret}&scope=${scope}&redirect_uris=${redirectURI}`)
 });
 

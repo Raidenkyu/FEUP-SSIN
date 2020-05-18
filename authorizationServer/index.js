@@ -31,26 +31,6 @@ const codes = {};
 
 const requests = {};
 
-app.get('/', function(req, res) {
-	res.render('index', {clients: clients, authServer: authServer});
-});
-
-app.get('/authorize', function(req, res) {
-    const client_id = req.query.client_id || '';
-    const client_secret = req.query.client_secret || '';
-    const scope = req.query.scope || '';
-    const redirect_uris = req.query.redirect_uris || '';
-  if(req.session.user)  {
-    res.render('oauth_dialog', {client_id: client_id, client_secret, scope: scope, redirect_uris: redirect_uris});
-  } else {
-    res.redirect(`http://localhost:9001/login?client_id=${client_id}&client_secret=${client_secret}&scope=${scope}&redirect_uris=${redirect_uris}`);
-  }
-});
-
-app.get('/login', function(req, res) {
-	res.render('login');
-});
-
 app.use('/', express.static('./authorizationServer/public'));
 
 app.use(router);
