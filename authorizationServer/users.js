@@ -1,27 +1,31 @@
 // registred users information
 const users = new Map(Object.freeze({
-    100: {
+    'antonio': {
         username: 'antonio',
-		password: '123',
+        password: '123',
     },
-    200: {
+    'bruno': {
         username: 'bruno',
-		password: '123',
+        password: '123',
     },
-    300: {
+    'joao': {
         username: 'joao',
-		password: '123',
+        password: '123',
     },
-    400: {
+    'alice': {
         username: 'alice',
-		password: '123',
+        password: '123',
     },
-    500: {
+    'bob': {
         username: 'bob',
-		password: '123',
+        password: '123',
     },
 }));
 
 module.exports = Object.freeze({
-    get: (user_id) => users.get(user_id)
+    get: (username) => users.get(username),
+    verify: (username, password) => {
+        const user = users.get(username);
+        return password === user.password;
+    }
 });

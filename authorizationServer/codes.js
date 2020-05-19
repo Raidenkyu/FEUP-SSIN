@@ -10,8 +10,7 @@ const code_lifetime = 300 * 1000;
  *   expires_in: timestamp,
  *   client_id: string,
  *   user_id: string,
- *   scopes: string,
- *   redirect_uri: string,
+ *   scope: string,
  *   state: string,
  * }
  * Each code signifies one authorization grant from a user to a client

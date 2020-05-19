@@ -2,10 +2,11 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
+const url = require('url');
+
 const clients = require('./clients');
 const users = require('./users');
-const tokens = require('./tokens');
-const url = require('url');
+const authcodes = require('./codes');
 
 const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
@@ -17,9 +18,17 @@ const signOptions = {
     algorithm: "HS512",
 };
 
+function extendURL(url, extraParams) {
+    const params = new URLSearchParams(url.search);
+    for (const [key, value] of Object.entries(extraParams))
+        params.set(key, value);
+    url.search = params;
+    return url;
+}
+
 // https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
 // https://www.oauth.com/playground/authorization-code.html
-router.post('/new_token', (req, res) => {
+router.post('/token', (req, res) => {
     const { grant_type } = req.body;
 
     if (grant_type === 'authorization_code')
@@ -36,16 +45,20 @@ router.post('/new_token', (req, res) => {
     })
 });
 
+// 4.1.1. Authorization request
 router.get('/authorize', (req, res) => {
+    // 4.1.1
     const {
         response_type,
         client_id,
+        scope,
         state
     } = req.query;
 
     const { user } = req.session;
-
     const client = clients.get(client_id);
+
+    // 4.1.2.1. The client is invalid so we don't have a redirect uri
     if (!client) {
         // TODO friendly html page response
         return res.status(400).json({
@@ -54,18 +67,27 @@ router.get('/authorize', (req, res) => {
         });
     }
 
-    const redirect_uri = client.redirect_uri;
-    const scope = client.scope;
+    const redirect_uri = new URL(client.redirect_uri);
 
+    // 4.1.2.1. Check scope (invalid_scope)
+    if (!clients.verifyScope(client_id, scope)) {
+        return res.redirect(303, extendURL(redirect_uri, {
+            error: 'invalid_scope',
+            error_description: 'Scope not allowed for this client',
+            ...(state && {state})
+        }));
+    }
+
+    // 4.1.2.1. Check response type (unsupported_response_type)
     if (response_type !== 'code') {
-        return res.redirect(303, redirect_uri + '?' + qs.stringify({
+        return res.redirect(303, extendURL(redirect_uri, {
             error: 'unsupported_response_type',
             error_description: 'Invalid response type (code required)',
             ...(state && {state}),
         }));
     }
 
-    // If there is no signed in user, redirect the user's agent to the
+    // if there is no signed in user, redirect the user's agent to the
     // interactive login page with this endpoint as the callback.
     if (!user) {
         return res.redirect(303, url.format({
@@ -79,24 +101,88 @@ router.get('/authorize', (req, res) => {
         }));
     }
 
-    return res.render('oauth_dialog');
+    // Ask the user for authorization
+    return res.render('oauth_dialog', {
+        client_id: client.client_id,
+        scope: scope,
+        state: state,
+        // plus random useful information
+        client_name: client.client_id, // idk...
+    });
 });
 
+// Handle user authorization grant (oauth_dialog form submission)
+// TODO: csrf token
 router.post('/authorize', (req, res) => {
-    // TODO
+    const {
+        client_id,
+        scope,
+        state,
+        allow = true
+    } = req.body;
+
+    const { user } = req.session;
+    const client = clients.get(client_id);
+
+    // Check everything again...
+
+    // 4.1.2.1. The client is invalid so we don't have a redirect uri
+    if (!client) {
+        // TODO friendly html page response
+        return res.status(400).json({
+            error: 'invalid_client',
+            message: 'Invalid client ' + client_id,
+        });
+    }
+
+    const redirect_uri = new URL(client.redirect_uri);
+
+    // 4.1.2.1. Check scope (invalid_scope)
+    if (!clients.verifyScope(client_id, scope)) {
+        return res.redirect(303, extendURL(redirect_uri, {
+            error: 'invalid_scope',
+            error_description: 'Scope not allowed for this client',
+            ...(state && {state})
+        }));
+    }
+
+    // 4.1.2 Generate the auth code (bound to the user, client and scope)
+    // We don't bind the code to the redirect uri because the redirect uri
+    // is unique for each client (simplification)
+    const code = authcodes.generate({
+        user_id: user.user_id,
+        client_id: client.client_id,
+        scope: scope,
+    })
+
+    if (!allow) {
+        // 4.1.2.1. The user denied access
+        return res.redirect(303, extendURL(redirect_uri, {
+            error: 'access_denied',
+            error_message: 'User denied access to these scopes',
+            ...(state && {state})
+        }));
+    } else {
+        // 4.1.2. The user authorized access
+        return res.redirect(303, extendURL(redirect_uri, {
+             code,
+             ...(state && {state})
+         }));
+    }
 })
 
-// https://tools.ietf.org/html/rfc6749#section-2.3
+// 4.1.3. Access token request
 function middlewareAuthorizationCode(req, res) {
+    // grant_type was checked
     const {
         client_id,
         client_secret,
         code,
     };
-    // TODO
 }
 
 function middlewareRefreshToken(req, res) {
+    // grant_type was checked
     const {
         refresh_token,
     };
@@ -155,8 +241,6 @@ router.post('/refresh', (req, res) => {
     )[0];
 
     if ((payload != null) && (refreshToken != null) && (refreshToken in tokens)) {
-
-
         const token = jwt.sign(payload, privateKEY, signOptions)
 
         const response = {
@@ -205,7 +289,7 @@ router.post('/login', (req, res) => {
     const password = req.body.password;
 
     if (!username || !password) {
-        return req.status(400).
+        return req.status(400)
     }
     const clientId = req.body.client_id || '';
     const clientSecret = req.body.client_secret || '';

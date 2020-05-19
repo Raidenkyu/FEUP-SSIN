@@ -2,9 +2,7 @@ const express = require("express");
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cons = require('consolidate');
-const __ = require('underscore');
 const cors = require('cors');
-__.string = require('underscore.string');
 
 const router = require('./routes');
 const clients = require('./clients');
@@ -26,10 +24,6 @@ const authServer = {
 	authorizationEndpoint: 'http://localhost:9001/authorize',
 	tokenEndpoint: 'http://localhost:9001/token'
 };
-
-const codes = {};
-
-const requests = {};
 
 app.get('/', function(req, res) {
 	res.render('index', {clients: clients, authServer: authServer});
