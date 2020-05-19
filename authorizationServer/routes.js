@@ -1,49 +1,21 @@
 const express = require('express');
-const session = require('express-session');
-const fs = require('fs');
-const jwt = require('jsonwebtoken');
 const url = require('url');
 
 const clients = require('./clients');
 const users = require('./users');
 const authcodes = require('./codes');
-
-const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
-const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
+const tokens = require('./tokens');
 
 const router = express.Router();
 
-const signOptions = {
-    expiresIn: "1h",
-    algorithm: "HS512",
-};
-
 function extendURL(url, extraParams) {
+    if (!(url instanceof URL)) url = new URL(url);
     const params = new URLSearchParams(url.search);
     for (const [key, value] of Object.entries(extraParams))
         params.set(key, value);
     url.search = params;
     return url;
 }
-
-// https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
-// https://www.oauth.com/playground/authorization-code.html
-router.post('/token', (req, res) => {
-    const { grant_type } = req.body;
-
-    if (grant_type === 'authorization_code')
-        return middlewareAuthorizationCode(req, res);
-
-    if (grant_type === 'refresh_token')
-        return middlewareRefreshToken(req, res);
-
-    const message = 'Only the authorization code flow is supported by this OAuth2 server';
-
-    return res.status(400).json({
-        error: 'unsupported_grant_type',
-        error_description: message,
-    })
-});
 
 // 4.1.1. Authorization request
 router.get('/authorize', (req, res) => {
@@ -102,6 +74,7 @@ router.get('/authorize', (req, res) => {
     }
 
     // Ask the user for authorization
+    // TODO: csrf token
     return res.render('oauth_dialog', {
         client_id: client.client_id,
         scope: scope,
@@ -155,82 +128,168 @@ router.post('/authorize', (req, res) => {
         scope: scope,
     })
 
+    // 4.1.2.1. The user denied access (access_denied)
     if (!allow) {
-        // 4.1.2.1. The user denied access
         return res.redirect(303, extendURL(redirect_uri, {
             error: 'access_denied',
             error_message: 'User denied access to these scopes',
             ...(state && {state})
         }));
+    // 4.1.2. The user authorized access
     } else {
-        // 4.1.2. The user authorized access
         return res.redirect(303, extendURL(redirect_uri, {
              code,
              ...(state && {state})
          }));
     }
-})
+});
+
+router.post('/token', (req, res) => {
+    const { grant_type } = req.body;
+
+    if (grant_type === 'authorization_code')
+        return middlewareAuthorizationCode(req, res);
+
+    if (grant_type === 'refresh_token')
+        return middlewareRefreshToken(req, res);
+
+    const message = 'Only the authorization code flow is supported by this OAuth2 server';
+
+    return res.status(400).json({
+        error: 'unsupported_grant_type',
+        error_description: message,
+    })
+});
 
 // 4.1.3. Access token request
 function middlewareAuthorizationCode(req, res) {
     // grant_type was checked
+    // don't need redirect_uri because it is bound to the client
     const {
         client_id,
         client_secret,
         code,
-    };
+    } = req.body;
+
+    const client = clients.get(client_id);
+
+    // 5.2. The client is invalid so we don't have a redirect uri
+    if (!client || client_secret !== client.client_secret) {
+        return res.status(400).json({
+            error: 'invalid_client',
+            error_message: 'Invalid client ' + client_id,
+        });
+    }
+
+    const grant = authcodes.get(code);
+
+    // 5.2. Invalid authorization code (invalid_grant)
+    if (!grant) {
+        return res.status(400).json({
+            error: 'invalid_grant',
+            error_message: 'Invalid authorization code ' + client_id,
+        });
+    }
+
+    const { token, refreshToken, expiresIn } = tokens.generate({
+        client_id: grant.client_id,
+        user_id: grant.user_id,
+        scope: grant.scope,
+    });
+
+    return res.status(200).json({
+        access_token: token,
+        refresh_token: refreshToken,
+        expires_in: expiresIn,
+        token_type: 'bearer',
+    })
 }
 
 function middlewareRefreshToken(req, res) {
     // grant_type was checked
+    // don't need redirect_uri because it is bound to the client
     const {
+        client_id,
+        client_secret,
         refresh_token,
-    };
+    } = req.body;
+
+    const client = clients.get(client_id);
+
+    // 5.2. The client is invalid so we don't have a redirect uri
+    if (!client || client_secret !== client.client_secret) {
+        return res.status(400).json({
+            error: 'invalid_client',
+            message: 'Invalid client ' + client_id,
+        });
+    }
+
     // TODO
 }
 
-router.post('/token', (req, res) => {
-    const clientId = req.body.client_id || '';
-    const clientSecret = req.body.client_secret || '';
-    const scope = req.body.scope || '';
-    const redirectURI = req.body.redirect_uris || '';
+router.post('/verify', (req, res) => {
+    const token = req.body.token || req.query.token || req.headers['x-access-token'];
 
-    let payload = clients.filter(
-        client => (client.client_id == clientId)
-    )[0];
-
-    if (payload != null) {
-        if (payload.client_secret != clientSecret) {
-            res.status(400).json({
-                message: 'Unauthorized: Invalid Client Secret',
-            });
-        }
-    }
-    else {
-        payload = {
-            client_id: clientId,
-            client_secret: clientSecret,
-            scope: scope,
-            redirect_uris: [redirectURI],
-        };
-
-        clients.push(payload);
+    if (!token) {
+        return res.status(400).json({
+            error: 'missing_token',
+            error_message: 'Missing access token',
+        });
     }
 
-    const token = jwt.sign(payload, privateKEY, signOptions)
-    const refreshToken = jwt.sign(payload, privateKEY, { algorithm: "HS512" });
+    const payload = tokens.verify(token);
 
-    const response = {
-        token: token,
-        refreshToken: refreshToken,
-    };
+    if (!payload) {
+        return res.status(400).json({
+            error: 'invalid_token',
+            error_message: 'Invalid or expired access token',
+        });
+    }
 
-    tokens[refreshToken] = response;
-
-    res.redirect(`${redirectURI}?access_token=${token}&refresh_token=${refreshToken}&scope=${scope}`);
-
+    return res.status(200).json({
+        payload: payload,
+    });
 });
 
+router.post('/login', (req, res) => {
+    const {
+        username,
+        password,
+        callback,
+    } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({
+            error: 'invalid_request',
+            error_message: 'Missing user credentials',
+        });
+    }
+
+    const user = users.get(username);
+
+    if (!user || user.password !== password) {
+        return res.status(401).json({
+            error: 'invalid_credentials',
+            error_message: 'Invalid user credentials',
+        });
+    }
+
+    req.session.user = user;
+
+    if (callback) {
+        res.redirect(callback);
+    } else {
+        res.status(200).json({ message: 'Login successful' });
+    }
+});
+
+router.get('/introspection', (req, res) => {
+    res.status(200).json({
+        public_key: publicKEY,
+    });
+});
+
+// Deprecated, move to /token with grant_type == refresh_token
 router.post('/refresh', (req, res) => {
     const clientId = req.body.clientId || '';
     const clientSecret = req.body.clientSecret || '';
@@ -260,53 +319,6 @@ router.post('/refresh', (req, res) => {
             message: "Invalid refresh token",
         });
     }
-});
-
-router.post('/verify', (req, res) => {
-    const token = req.body.token || req.query.token || req.headers['x-access-token']
-    // decode token
-    if (token) {
-        // verifies secret and checks exp
-        jwt.verify(token, publicKEY, (err, decoded) => {
-            if (err) {
-                return res.status(401).json({ "message": 'Unauthorized access.' });
-            }
-            res.status(200).json({
-                decoded: decoded,
-            });
-        });
-    } else {
-        // if there is no token
-        // return an error
-        return res.status(403).json({
-            "message": 'Invalid Token.'
-        });
-    }
-});
-
-router.post('/login', (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    if (!username || !password) {
-        return req.status(400)
-    }
-    const clientId = req.body.client_id || '';
-    const clientSecret = req.body.client_secret || '';
-    const scope = req.body.scope || '';
-    const redirectURI = req.body.redirect_uris || '';
-
-    let user = users.filter(
-        user => (user.id == req.body.uname && user.password === req.body.psw)
-    )[0];
-    req.session.user = user;
-    res.redirect(`http://localhost:9001/authorize?client_id=${clientId}&client_secret=${clientSecret}&scope=${scope}&redirect_uris=${redirectURI}`)
-});
-
-router.get('/introspection', (req, res) => {
-    res.json({
-        publicKey: publicKEY,
-    });
 });
 
 module.exports = router;

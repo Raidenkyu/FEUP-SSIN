@@ -7,68 +7,71 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>OAuth in Action: OAuth User LogIn</title>
 
-    <!-- Bootstrap -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<style>
-body {font-family: Arial, Helvetica, sans-serif;
-    padding-top: 60px;
-}
-form {border: 3px solid #f1f1f1;
-    background-color: rgb(233, 233, 233);}
+      <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      padding-top: 60px;
+    }
 
-input[type=text], input[type=password] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
+    form {
+      border: 3px solid #f1f1f1;
+      background-color: rgb(233, 233, 233);
+    }
 
-button {
-  background-color: rgb(153, 155, 153);
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-}
+    input[type=text], input[type=password] {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
 
-button:hover {
-  opacity: 0.8;
-}
+    button {
+      background-color: rgb(153, 155, 153);
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
 
-.cancelbtn {
-  width: auto;
-  padding: 10px 18px;
-  background-color: #f44336;
-}
+    button:hover {
+      opacity: 0.8;
+    }
 
-
-</style>
-</head>
-<body>
+    .cancelbtn {
+      width: auto;
+      padding: 10px 18px;
+      background-color: #f44336;
+    }
+    </style>
+  </head>
+  <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-          <div class="navbar-header">
-            <a class="navbar-brand" href="/">OAuth in Action: <span class="label label-danger">OAuth User LogIn</label></a>
-          </div>
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">
+            OAuth in Action: <label class="label label-danger">OAuth User LogIn</label>
+          </a>
         </div>
-      </nav>
-<form action="/login" method="post">
+      </div>
+    </nav>
+    <form action="/login" method="post">
+      <div class="container">
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required/>
 
-  <div class="container">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="uname" required>
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required/>
 
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
-        
-    <button type="submit">Login</button>
-    
-  </div>
-</form>
+        <input type="hidden" name="csrf_token"/>
 
-</body>
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </body>
 </html>
