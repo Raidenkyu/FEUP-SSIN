@@ -1,5 +1,5 @@
 // registred users information
-const users = new Map(Object.freeze({
+const users = new Map(Object.entries({
     'antonio': {
         username: 'antonio',
         password: '123',

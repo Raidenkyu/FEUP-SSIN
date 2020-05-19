@@ -3,9 +3,13 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const cons = require('consolidate');
 const cors = require('cors');
+const fs = require('fs');
 
 const router = require('./routes');
 const clients = require('./clients');
+
+const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
+const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const app = express();
 
@@ -20,29 +24,16 @@ app.set('views', './authorizationServer/public');
 app.set('json spaces', 4);
 
 // authorization server information
-const authServer = {
+const authServer = Object.freeze({
+    publicKey: publicKEY,
+    privateKey: privateKEY,
 	authorizationEndpoint: 'http://localhost:9001/authorize',
-	tokenEndpoint: 'http://localhost:9001/token'
-};
-
-app.get('/', function(req, res) {
-	res.render('index', {clients: clients, authServer: authServer});
+    tokenEndpoint: 'http://localhost:9001/token',
+    loginEndpoint: 'http://localhost:9001/login',
 });
 
-app.get('/authorize', function(req, res) {
-    const client_id = req.query.client_id || '';
-    const client_secret = req.query.client_secret || '';
-    const scope = req.query.scope || '';
-    const redirect_uris = req.query.redirect_uris || '';
-  if(req.session.user)  {
-    res.render('oauth_dialog', {client_id: client_id, client_secret, scope: scope, redirect_uris: redirect_uris});
-  } else {
-    res.redirect(`http://localhost:9001/login?client_id=${client_id}&client_secret=${client_secret}&scope=${scope}&redirect_uris=${redirect_uris}`);
-  }
-});
-
-app.get('/login', function(req, res) {
-	res.render('login');
+app.get('/', function(_req, res) {
+	res.render('index', {clients: clients.getAll(), authServer: authServer});
 });
 
 app.use('/', express.static('./authorizationServer/public'));
@@ -50,8 +41,8 @@ app.use('/', express.static('./authorizationServer/public'));
 app.use(router);
 
 const server = app.listen(9001, 'localhost', function () {
-  const host = server.address().address;
-  const port = server.address().port;
+    const host = server.address().address;
+    const port = server.address().port;
 
-  console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
+    console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });
