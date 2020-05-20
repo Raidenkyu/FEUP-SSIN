@@ -38,7 +38,7 @@ app.get('/', function(_req, res) {
 
 app.use('/', express.static('./authorizationServer/public'));
 
-app.use(router);
+app.use('/', router);
 
 const server = app.listen(9001, 'localhost', function () {
     const host = server.address().address;
