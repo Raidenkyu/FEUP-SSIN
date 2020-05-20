@@ -1,7 +1,9 @@
-var express = require("express");
-var cons = require('consolidate');
+const express = require("express");
+const cons = require('consolidate');
 
-var app = express();
+const router = require('./routes');
+
+const app = express();
 
 app.engine('html', cons.underscore);
 app.set('view engine', 'html');
@@ -16,6 +18,8 @@ app.get('/', function (req, res) {
 });
 
 app.use('/', express.static('./client/public'));
+
+app.use('/', router);
 
 var server = app.listen(9000, 'localhost', function () {
     var host = server.address().address;

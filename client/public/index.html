@@ -8,48 +8,45 @@
     <title>OAuth Component: OAuth Client</title>
 
     <!-- Bootstrap -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-	<style>
-	body {
-	  padding-top: 60px;
-	}
-	.navbar-inverse {
-		background-color: #223;
-	}
-	</style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
+    body {
+        padding-top: 60px;
+    }
+    .navbar-inverse {
+        background-color: #223;
+    }
+    </style>
   </head>
   <body>
-
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">OAuth Component: <span class="label label-primary">OAuth Client</label></a>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">OAuth Component:
+            <label class="label label-primary">OAuth Client</label>
+        </a>
         </div>
       </div>
     </nav>
 
     <div class="container">
-
       <div class="jumbotron">
-		  
-		  <div class="alert alert-info" role="alert">This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.</div>
-		  
-		  <p>Access token value: <span class="label label-danger"><%- access_token ? access_token : 'NONE' %></span></p>
-		  <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
-		  <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
-		  <button id="getToken" class="btn btn-default" href="/authorize" >Get OAuth Token</button> 
-		  <button id="getResource" class="btn btn-default" href="/fetch_resource" >Get Protected Resource</button> 
+        <div class="alert alert-info" role="alert">
+            This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.
+        </div>
+        <p>Access token value: <span class="label label-danger"><%- access_token ? access_token : 'NONE' %></span></p>
+        <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
+        <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
+        <button id="getToken" class="btn btn-default" href="/authorize" >Get OAuth Token</button>
+        <button id="getResource" class="btn btn-default" href="/fetch_resource" >Get Protected Resource</button>
       </div>
+    </div>
 
-    </div><!-- /.container -->
-
-	
-	
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  <script src="client.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="client.js"></script>
   </body>
 </html>

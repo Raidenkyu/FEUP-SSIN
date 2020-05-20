@@ -132,13 +132,14 @@ router.post('/authorize', (req, res) => {
     if (!allow) {
         return res.redirect(303, extendURL(redirect_uri, {
             error: 'access_denied',
-            error_message: 'User denied access to these scopes',
+            error_description: 'User denied access to these scopes',
             ...(state && {state})
         }));
     // 4.1.2. The user authorized access
     } else {
         return res.redirect(303, extendURL(redirect_uri, {
              code,
+             scope,
              ...(state && {state})
          }));
     }
@@ -177,7 +178,7 @@ function middlewareAuthorizationCode(req, res) {
     if (!client || client_secret !== client.client_secret) {
         return res.status(400).json({
             error: 'invalid_client',
-            error_message: 'Invalid client ' + client_id,
+            error_description: 'Invalid client ' + client_id,
         });
     }
 
@@ -187,7 +188,7 @@ function middlewareAuthorizationCode(req, res) {
     if (!grant) {
         return res.status(400).json({
             error: 'invalid_grant',
-            error_message: 'Invalid authorization code ' + client_id,
+            error_description: 'Invalid authorization code ' + client_id,
         });
     }
 
@@ -202,6 +203,7 @@ function middlewareAuthorizationCode(req, res) {
         refresh_token: refreshToken,
         expires_in: expiresIn,
         token_type: 'bearer',
+        scope: grant.scope,
     })
 }
 
@@ -220,7 +222,7 @@ function middlewareRefreshToken(req, res) {
     if (!client || client_secret !== client.client_secret) {
         return res.status(400).json({
             error: 'invalid_client',
-            message: 'Invalid client ' + client_id,
+            error_description: 'Invalid client ' + client_id,
         });
     }
 
