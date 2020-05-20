@@ -2,12 +2,14 @@ const express = require("express");
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cons = require('consolidate');
-const __ = require('underscore');
 const cors = require('cors');
-__.string = require('underscore.string');
+const fs = require('fs');
 
 const router = require('./routes');
 const clients = require('./clients');
+
+const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
+const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const app = express();
 
@@ -22,22 +24,25 @@ app.set('views', './authorizationServer/public');
 app.set('json spaces', 4);
 
 // authorization server information
-const authServer = {
+const authServer = Object.freeze({
+    publicKey: publicKEY,
+    privateKey: privateKEY,
 	authorizationEndpoint: 'http://localhost:9001/authorize',
-	tokenEndpoint: 'http://localhost:9001/token'
-};
+    tokenEndpoint: 'http://localhost:9001/token',
+    loginEndpoint: 'http://localhost:9001/login',
+});
 
-const codes = {};
-
-const requests = {};
+app.get('/', function(_req, res) {
+	res.render('index', {clients: clients.getAll(), authServer: authServer});
+});
 
 app.use('/', express.static('./authorizationServer/public'));
 
-app.use(router);
+app.use('/', router);
 
 const server = app.listen(9001, 'localhost', function () {
-  const host = server.address().address;
-  const port = server.address().port;
+    const host = server.address().address;
+    const port = server.address().port;
 
-  console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
+    console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });

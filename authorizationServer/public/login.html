@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>OAuth in Action: OAuth User LogIn</title>
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-  <title>OAuth in Action: OAuth User LogIn</title>
-
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <style>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
     body {
       font-family: Arial, Helvetica, sans-serif;
       padding-top: 60px;
@@ -50,35 +49,30 @@
       padding: 10px 18px;
       background-color: #f44336;
     }
-  </style>
-</head>
-
-<body>
-  <nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="/">OAuth in Action: <span class="label label-danger">OAuth User LogIn</label></a>
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">
+            OAuth in Action: <label class="label label-danger">OAuth User LogIn</label>
+          </a>
+        </div>
       </div>
-    </div>
-  </nav>
-  <form action="/login" method="post">
+    </nav>
+    <form action="/login" method="post">
+      <div class="container">
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" required/>
 
-    <div class="container">
-      <label for="uname"><b>Username</b></label>
-      <input type="text" placeholder="Enter Username" name="uname" required>
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" required/>
 
-      <label for="psw"><b>Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" required>
-      <input type="hidden" name="client_id" value="<%- client_id %>"></input>
-      <input type="hidden" name="client_secret" value="<%- client_secret %>"></input>
-      <input type="hidden" name="scope" value="<%- scope %>"></input>
-      <input type="hidden" name="redirect_uris" value="<%- redirect_uris %>"></input>
+        <input type="hidden" name="csrf_token"/>
 
-      <button type="submit">Login</button>
-
-    </div>
-  </form>
-
-</body>
-
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  </body>
 </html>
