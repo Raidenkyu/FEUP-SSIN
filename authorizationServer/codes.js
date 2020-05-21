@@ -22,13 +22,10 @@ const grants = new Map();
  */
 setInterval(function clearCache() {
     const now = Date.now();
-    if (now - latestClear < frequencyClear) return;
 
     for (const [code, grant] of grants.values())
         if (grant.expires_in < now)
             grants.delete(code);
-
-    latestClear = now;
 }, 30 * 1000);
 
 /**
