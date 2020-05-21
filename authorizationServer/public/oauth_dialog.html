@@ -47,7 +47,7 @@
           <li><code><%- single_scope %></code></li>
           <% }); %>
         </ul>
-        <form action="/token" method="POST">
+        <form action="/authorize" method="POST">
           <input type="hidden" name="client_id" value="<%- client_id %>"></input>
           <input type="hidden" name="client_secret" value="<%- client_secret %>"></input>
           <input type="hidden" name="scope" value="<%- scope %>"></input>
