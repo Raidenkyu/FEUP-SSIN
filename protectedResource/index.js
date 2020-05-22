@@ -3,10 +3,8 @@ const cons = require('consolidate');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
-const axios = require('axios').default;
 
 const router = require('./routes');
-const words = require('./words');
 
 const app = express();
 

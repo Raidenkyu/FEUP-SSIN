@@ -12,6 +12,6 @@ module.exports = Object.freeze({
     get: (client_id) => clients.get(client_id),
     getAll: () => Object.fromEntries(clients),
     verifyScope: (client_id, scope) => clients.has(client_id) &&
-        scope.split(/\s+/g).every((singleScope) =>
+        scope.trim().split(/\s+/g).every((singleScope) =>
             clients.get(client_id).scope.includes(singleScope))
 });

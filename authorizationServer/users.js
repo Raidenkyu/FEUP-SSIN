@@ -1,23 +1,23 @@
 // registred users information
 const users = new Map(Object.entries({
     'antonio': {
-        username: 'antonio',
+        user_id: 'antonio',
         password: '123',
     },
     'bruno': {
-        username: 'bruno',
+        user_id: 'bruno',
         password: '123',
     },
     'joao': {
-        username: 'joao',
+        user_id: 'joao',
         password: '123',
     },
     'alice': {
-        username: 'alice',
+        user_id: 'alice',
         password: '123',
     },
     'bob': {
-        username: 'bob',
+        user_id: 'bob',
         password: '123',
     },
 }));

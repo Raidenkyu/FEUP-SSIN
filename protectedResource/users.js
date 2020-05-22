@@ -1,9 +1,7 @@
-const users = {
-    100: 'read write delete',
-    200: 'read write',
-    300: 'read delete',
-    400: 'read',
-    500: 'write delete',
-};
+const users = new Map(Object.entries({
+    'bruno': 'write delete',
+    'antonio': 'read write',
+    'joao': 'read delete',
+}));
 
-module.exports = Object.freeze(users);
+module.exports = users;

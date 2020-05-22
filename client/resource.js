@@ -14,36 +14,27 @@ resourceServer.interceptors.request.use((config) =>{
 
 resourceServer.interceptors.response.use((response) => (response),
     (error) => {
+        const { config, response } = error;
+
         // Return any error which is not due to authentication back to the calling service
-        if (error.response.status !== 401) {
-            return new Promise((_resolve, reject) => {
-                reject(error);
-            });
+        if (response.status !== 401) {
+            return Promise.reject(error);
         }
 
+        // Don't refresh access tokens on access denied errors, for example
+        if (response.data.error !== 'invalid_grant') {
+            return Promise.reject(error);
+        }
+
+        const session = config.session;
+        const { refresh_token } = session;
+
         // Try request again with new token
-        return Auth.refreshAccessToken()
-            .then((res) => {
-
-                const config = error.config;
-
-                if (res.data.access_token) {
-                    //Set new access token
-
-                }
-
-                return new Promise((resolve, reject) => {
-                    axios.request(config).then((response) => {
-                        resolve(response);
-                    }).catch((error) => {
-                        reject(error);
-                    });
-                });
-
-            })
-            .catch((error) => {
-                Promise.reject(error);
-            });
+        return Auth.refreshAccessToken(refresh_token, session).then((_) => {
+            return resourceServer.request(config);
+        }).catch((error) => {
+            Promise.reject(error);
+        });
     },
 );
 
