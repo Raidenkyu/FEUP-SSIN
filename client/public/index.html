@@ -1,68 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>OAuth Component: OAuth Client</title>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <style>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <title>OAuth Component: OAuth Client</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <style>
     body {
       padding-top: 60px;
     }
+
     .navbar-inverse {
       background-color: #223;
     }
-    </style>
-  </head>
-  <body>
+  </style>
+</head>
+
+<body>
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
       <div class="navbar-header">
         <a class="navbar-brand" href="/">OAuth Component:
-            <label class="label label-primary">OAuth Client</label>
+          <label class="label label-primary">OAuth Client</label>
         </a>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container">
-      <div class="jumbotron">
-        <div class="alert alert-info" role="alert">
-          This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.
-        </div>
-        <p>Access token value: <span class="label label-danger" id="token"><%- access_token ? access_token : 'NONE' %></span></p>
-        <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
-        <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
-        <a href="/authorize">
-          <button class="btn btn-default">Get OAuth Token</button>
-        </a>
-      </div>
-
-      <div class="jumbotron">
-        <form method="POST" action="/submit">
-          <label for="word">Word:</label>
-          <input id="word" name="word"></input><br>
-          <input type="radio" id="readall" name="operation" value="readall">
-          <label for="readall">Read all words</label><br>
-          <input type="radio" id="read" name="operation" value="read">
-          <label for="read">Read (check if word exists)</label><br>
-          <input type="radio" id="write" name="operation" value="write">
-          <label for="write">Write new word</label><br>
-          <input type="radio" id="delete" name="operation" value="delete">
-          <label for="delete">Delete word</label><br>
-          <button class="btn btn-default">Submit</button>
-        </form>
       </div>
     </div>
+  </nav>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-  </body>
+  <div class="container">
+    <div class="jumbotron">
+      <div class="alert alert-info" role="alert">
+        This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.
+      </div>
+      <p>Access token value: <span class="label label-danger"
+          id="token"><%- access_token ? access_token : 'NONE' %></span></p>
+      <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
+      <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
+      <a href="/authorize">
+        <button class="btn btn-default">Get OAuth Token</button>
+      </a>
+    </div>
+
+    <div class="jumbotron">
+      <form id="operationForm" method="POST" action="/submit">
+        <label for="word">Word:</label>
+        <input id="wordField" id="word" name="word"></input><br>
+        <input type="radio" id="readall" name="operation" value="readall">
+        <label for="readall">Read all words</label><br>
+        <input type="radio" id="read" name="operation" value="read">
+        <label for="read">Read (check if word exists)</label><br>
+        <input type="radio" id="write" name="operation" value="write">
+        <label for="write">Write new word</label><br>
+        <input type="radio" id="delete" name="operation" value="delete">
+        <label for="delete">Delete word</label><br>
+        <button id="submitButton" class="btn btn-default">Submit</button>
+      </form>
+    </div>
+
+    <div class="jumbotron">
+      <strong>Operations Results:</strong>
+      <ul id="resultsList"></ul>
+    </div>
+
+  </div>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script defer>
+    const button = document.getElementById("submitButton");
+    const form = document.getElementById("operationForm");
+    const resultsList = document.getElementById("resultsList");
+    const wordField = document.getElementById("wordField");
+    const readOption = document.getElementById("read");
+    const readallOption = document.getElementById("readall");
+    const writeOption = document.getElementById("write");
+    const deleteOption = document.getElementById("delete");
+
+
+    const InsertMessage = (msg) => {
+      const date = new Date();
+      const element = document.createElement("li");
+      element.innerHTML = `<strong>${date.getHours()}:${date.getMinutes()}</strong> - <code>${msg}</code>`;
+      resultsList.appendChild(element);
+    };
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      
+      const body = {};
+      body.word = wordField.value;
+
+      switch (true) {
+        case readOption.checked:
+          body.operation = "read";
+          break;
+        case readallOption.checked:
+          body.operation = "readall";
+          break;
+        case writeOption.checked:
+          body.operation = "write";
+          break;
+        case deleteOption.checked:
+          body.operation = "delete";
+          break;
+        default:
+          break;
+      }
+
+      axios({
+        method: 'post',
+        url: form.getAttribute("action"),
+        data: body,
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then((response) => {
+          let msg = response.statusText;
+          if (response.data != "") msg += `:${response.data}`;
+
+          InsertMessage(msg);
+        })
+        .catch((error) => {
+          InsertMessage(error);
+        });
+    });
+  </script>
+</body>
+
 </html>

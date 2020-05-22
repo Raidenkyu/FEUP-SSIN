@@ -48,6 +48,8 @@ router.post('/submit', function (req, res) {
     const { operation, word } = req.body;
     const { scope = "", access_token } = req.session;
 
+    console.log(req.body);
+
     if (!operation) {
         return res.status(400).json({
             error: 'missing_operation',
