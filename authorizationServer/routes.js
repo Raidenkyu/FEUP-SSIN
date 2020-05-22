@@ -10,12 +10,6 @@ const extendURL = require('../utils/extendURL');
 
 const router = express.Router();
 
-router.all('*', (req, res, next) => {
-    console.info("ROUTE " + req.path);
-    console.info(req.session);
-    next();
-});
-
 // 4.1.1. Authorization request
 router.get('/authorize', (req, res) => {
     // 4.1.1
