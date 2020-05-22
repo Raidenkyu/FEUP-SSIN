@@ -68,11 +68,14 @@
 
         <label for="password"><b>Password</b></label>
         <input type="password" placeholder="Enter Password" name="password" required/>
-        <input type="hidden" name="callback" value="<%- callback %>"></input>
+        <input id="callback" type="hidden" name="callback"></input>
         <input type="hidden" name="csrf_token"/>
 
         <button type="submit">Login</button>
       </div>
     </form>
+    <script>
+      document.getElementById('callback').setAttribute('value', urlParams.get('callback'));
+    </script>
   </body>
 </html>
