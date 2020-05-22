@@ -219,7 +219,7 @@ function middlewareRefreshToken(req, res) {
         });
     }
 
-    // TODO
+    return Tokens.refresh(refresh_token);
 }
 
 router.post('/verify', (req, res) => {

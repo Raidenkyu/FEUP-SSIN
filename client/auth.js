@@ -45,7 +45,17 @@ function requestAuthorization(res, scope, action) {
     }));
 }
 
+function refreshAccessToken(refresh_token) {
+    return authServer.post('/token', {
+        grant_type: 'refresh_token',
+        client_id,
+        client_secret,
+        code: refresh_token,
+    });
+}
+
 module.exports = Object.freeze({
     redeemCode,
     requestAuthorization,
+    refreshAccessToken,
 });
