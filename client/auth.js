@@ -7,10 +7,12 @@ const Clients = require('../authorizationServer/clients');
 const client_id = Clients.get('client').client_id;
 const client_secret = Clients.get('client').client_secret;
 
-const authorizeURL = 'http://localhost:9001/authorize';
+const {AUTH_HOST, AUTH_PORT} = process.env;
+
+const authorizeURL = `http://${AUTH_HOST}:${AUTH_PORT}/authorize`;
 
 const authServer = axios.create({
-    baseURL: 'http://localhost:9001',
+    baseURL: `http://${AUTH_HOST}:${AUTH_PORT}`,
     timeout: 5000
 });
 
