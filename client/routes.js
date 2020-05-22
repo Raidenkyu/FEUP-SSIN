@@ -1,22 +1,11 @@
 const express = require("express");
-const axios = require('axios').default;
 
 const State = require('./state');
 const Auth = require('./auth');
+const ResourceServer = require('./resource');
 const Operations = require('./operations');
 
 const router = express.Router();
-
-const resourceServer = axios.create({
-    baseURL: 'http://localhost:9002/api',
-    timeout: 5000
-});
-
-resourceServer.interceptors.request.use((config) =>{
-    if (config.token)
-        config.headers['Authorization'] = `Bearer ${config.token}`;
-    return config;
-});
 
 router.get('/callback', function (req, res) {
     const {
