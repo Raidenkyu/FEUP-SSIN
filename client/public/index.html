@@ -136,7 +136,8 @@
 
         })
         .catch((error) => {
-          InsertMessage(error);
+          const errorDescription = `${error.response.status}: ${error.response.data.error_message}`;
+          InsertMessage(errorDescription);
         });
     });
   </script>
