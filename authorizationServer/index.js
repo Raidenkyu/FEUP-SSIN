@@ -1,3 +1,6 @@
+require('dotenv').config();
+const {AUTH_HOST, AUTH_PORT} = process.env;
+
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -22,6 +25,7 @@ app.use(session({
     secret: "very_secret_auth",
     resave: true,
     saveUninitialized: true,
+    maxAge: null,
     cookie: {httpOnly: true, secure: false},
 }));
 
@@ -34,9 +38,9 @@ app.set('json spaces', 4);
 const authServer = Object.freeze({
     publicKey: publicKEY,
     privateKey: privateKEY,
-	authorizationEndpoint: 'http://localhost:9001/authorize',
-    tokenEndpoint: 'http://localhost:9001/token',
-    loginEndpoint: 'http://localhost:9001/login',
+	authorizationEndpoint: `http://${AUTH_HOST}:${AUTH_PORT}/authorize`,
+    tokenEndpoint: `http://${AUTH_HOST}:${AUTH_PORT}/token`,
+    loginEndpoint: `http://${AUTH_HOST}:${AUTH_PORT}/login`,
 });
 
 app.get('/', function(_req, res) {
@@ -51,7 +55,7 @@ app.use('/', express.static('./authorizationServer/public', {
 
 app.use('/', router);
 
-const server = app.listen(9001, 'localhost', function () {
+const server = app.listen(AUTH_PORT, AUTH_HOST, function() {
     const host = server.address().address;
     const port = server.address().port;
     console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);

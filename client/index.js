@@ -1,3 +1,6 @@
+require('dotenv').config();
+const {CLIENT_HOST, CLIENT_PORT} = process.env;
+
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require('body-parser');
@@ -37,7 +40,7 @@ app.use('/', express.static('./client/public', {
 
 app.use('/', router);
 
-const server = app.listen(9000, 'localhost', function () {
+const server = app.listen(CLIENT_PORT, CLIENT_HOST, function() {
     const host = server.address().address;
     const port = server.address().port;
     console.log('OAuth Client is listening at http://%s:%s', host, port);

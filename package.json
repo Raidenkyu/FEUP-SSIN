@@ -12,6 +12,7 @@
         "concurrently": "^5.2.0",
         "consolidate": "^0.13.1",
         "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
         "express": "^4.13.1",
         "express-session": "^1.17.1",
         "install": "^0.13.0",

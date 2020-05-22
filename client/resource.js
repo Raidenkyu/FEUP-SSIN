@@ -1,8 +1,10 @@
 const axios = require('axios').default;
 const Auth = require('./auth');
 
+const {RESOURCE_HOST, RESOURCE_PORT} = process.env;
+
 const resourceServer = axios.create({
-    baseURL: 'http://localhost:9002/api',
+    baseURL: `http://${RESOURCE_HOST}:${RESOURCE_PORT}/api`,
     timeout: 5000
 });
 
