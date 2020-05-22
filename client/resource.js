@@ -2,7 +2,7 @@ const axios = require('axios').default;
 const Auth = require('./auth');
 
 const resourceServer = axios.create({
-    baseURL: 'http://localhost:9002',
+    baseURL: 'http://localhost:9002/api',
     timeout: 5000
 });
 
@@ -29,7 +29,7 @@ resourceServer.interceptors.response.use((response) => (response),
 
                 if (res.data.access_token) {
                     //Set new access token
-                    
+
                 }
 
                 return new Promise((resolve, reject) => {

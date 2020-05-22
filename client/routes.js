@@ -96,16 +96,16 @@ router.post('/submit', function (req, res) {
 
     switch (operation) {
         case "readall":
-            return resourceServer.get('/', { token })
+            return ResourceServer.get('/', { token })
                 .then(relaySuccess).catch(relayError);
         case "read":
-            return resourceServer.get('/' + word, { token })
+            return ResourceServer.get('/' + word, { token })
                 .then(relaySuccess).catch(relayError);
         case "write":
-            return resourceServer.put('/' + word, undefined, { token })
+            return ResourceServer.put('/' + word, undefined, { token })
                 .then(relaySuccess).catch(relayError);
         case "delete":
-            return resourceServer.delete('/' + word, undefined, { token })
+            return ResourceServer.delete('/' + word, undefined, { token })
                 .then(relaySuccess).catch(relayError);
         default:
             console.info("Invalid operation %s", operation);

@@ -2,6 +2,8 @@ const express = require("express");
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 
+const words = require('./words');
+
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const verifyOptions = {
@@ -43,12 +45,14 @@ const scoped = (scope) => function (req, res, next) {
 
         console.info('Token payload: %o', payload);
 
-        if (!payload.scope.split(/\s+/.includes(scope))) {
+        if (!payload.scope || !payload.scope.split(/\s+/).includes(scope)) {
             return res.status(401).json({
                 error: 'invalid_scope',
                 error_message: 'Invalid scope',
             });
         }
+
+        // TODO check user
 
         req.authorization = payload;
         next();
