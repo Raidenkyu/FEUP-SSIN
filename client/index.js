@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cons = require('consolidate');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
 const router = require('./routes');
 
@@ -30,8 +31,9 @@ app.set('json spaces', 4);
 
 app.get('/', function (req, res) {
     const {access_token, refresh_token, scope} = req.session;
+    const payload = jwt.decode(access_token);
 
-    res.render('index', {access_token, refresh_token, scope});
+    res.render('index', {access_token, refresh_token, payload, scope});
 });
 
 app.use('/', express.static('./client/public', {

@@ -20,7 +20,7 @@ const scoped = (scope) => function (req, res, next) {
 
     if (!authorization) {
         return res.status(401).json({
-            error: 'missing_token',
+            error: 'invalid_token',
             error_message: 'Missing authorization header',
         });
     }

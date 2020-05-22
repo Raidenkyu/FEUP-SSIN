@@ -18,6 +18,17 @@
     .navbar-inverse {
       background-color: #223;
     }
+
+    #tokens p {
+      word-wrap: break-word;
+      width: 100%;
+    }
+
+    #tokens p span {
+      white-space: pre-wrap;
+      display: inline-block;
+      width: 100%;
+    }
   </style>
 </head>
 
@@ -33,14 +44,31 @@
   </nav>
 
   <div class="container">
-    <div class="jumbotron">
+    <div id="tokens" class="jumbotron">
       <div class="alert alert-info" role="alert">
-        This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.
+        This is the shell for the <strong>OAuth Client</strong>.
+        The actual client functionality is in this page as well.
+        The tokens below are merely an introspection of the server's state.
+        This page does not need access to them to work properly.
       </div>
-      <p>Access token value: <span class="label label-danger"
-          id="token"><%- access_token ? access_token : 'NONE' %></span></p>
-      <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
-      <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
+      <p>Access token value:
+        <span class="label label-danger"><%- access_token
+          ? (access_token.slice(0, 15) + '...' + access_token.slice(-15))
+          : 'NONE' %></span>
+      </p>
+      <p>Refresh token value:
+        <span class="label label-danger"><%- refresh_token
+          ? (refresh_token.slice(0, 15) + '...' + refresh_token.slice(-15))
+          : 'NONE' %></span>
+      </p>
+      <p>Access token payload:
+        <code class="label label-danger"><%- payload
+          ? JSON.stringify(payload, null, 4)
+          : 'NONE' %></code>
+      </p>
+      <p>Scope value: <span class="label label-danger"><%- scope
+        ? scope
+        : 'NONE' %></span></p>
       <a href="/authorize">
         <button class="btn btn-default">Get OAuth Token</button>
       </a>
