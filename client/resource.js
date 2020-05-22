@@ -29,7 +29,7 @@ resourceServer.interceptors.response.use((response) => (response),
 
                 if (res.data.access_token) {
                     //Set new access token
-                    console.log(config);
+                    
                 }
 
                 return new Promise((resolve, reject) => {
