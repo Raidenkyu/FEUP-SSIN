@@ -42,9 +42,9 @@
       </div>
 
       <div class="jumbotron">
-        <form>
+        <form method="GET" action="/submit">
           <label for="resource">Resource:</label>
-          <input id="resource"></input><br>
+          <input id="resource" name="resource"></input><br>
           <input type="radio" id="read" name="scope" value="read">
           <label for="read">Read</label><br>
           <input type="radio" id="write" name="scope" value="write">

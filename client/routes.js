@@ -49,4 +49,41 @@ router.get('/callback', function (req, res) {
     });
 });
 
-module.exports = router;
+router.get('/submit', function(req,res){
+    let scope = req.query.scope;
+    let word = req.query.resource;
+
+    if(auth.scope){
+        const resourceServer = axios.create({
+            baseURL:'http://localhost:9002',
+            timeout: 5000
+        });
+        
+        resourceServer.interceptors.request.use((config) =>{
+            if(auth.access_token)
+                config.headers['Authorization'] = auth.access_token;
+            return config;
+        });
+
+        if(auth.scope.includes(scope)){
+            switch(scope){
+                case "read":
+                    resourceServer.get('/' + word);
+                    break;
+                case "write":
+                    resourceServer.put('/' + word);
+                    break;
+                case "delete":
+                    resourceServer.delete('/' + word);
+                    break;
+                default:
+                    console.info("Illegal Scope name");
+            }
+        } 
+        return;
+    }
+    
+    res.redirect(`http://localhost:9001/authorize?response_type=code&client_id=${client_id}&scope=${scope}&state=`)
+
+})
+    module.exports = router;
