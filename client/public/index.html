@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <style>
     body {
-        padding-top: 60px;
+      padding-top: 60px;
     }
     .navbar-inverse {
-        background-color: #223;
+      background-color: #223;
     }
     </style>
   </head>
@@ -37,7 +37,9 @@
         <p>Access token value: <span class="label label-danger" id="token"><%- access_token ? access_token : 'NONE' %></span></p>
         <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
         <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
-        <button class="btn btn-default" href="/authorize" >Get OAuth Token</button>
+        <a href="/authorize">
+          <button class="btn btn-default">Get OAuth Token</button>
+        </a>
       </div>
 
       <div class="jumbotron">

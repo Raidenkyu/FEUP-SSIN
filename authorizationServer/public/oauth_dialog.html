@@ -43,7 +43,7 @@
         <h2>Client information: <code><%- client_id %></code></h2>
         <p>Scopes: </p>
         <ul>
-          <% _.each(scope.split(' '), function(single_scope) { %>
+          <% _.each(scope.split(/\s+/), function(single_scope) { %>
           <li><code><%- single_scope %></code></li>
           <% }); %>
         </ul>

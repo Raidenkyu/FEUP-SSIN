@@ -52,12 +52,12 @@ router.get('/callback', function (req, res) {
 // required because we need to generate a state server-side
 router.get('/authorize', function (req, res) {
     const { scope = "read write delete" } = req.query;
-    return requestAuthorization(res, scope);
+    return Auth.requestAuthorization(res, scope);
 });
 
 router.post('/submit', function (req, res) {
-    const { operation, word } = req.query;
-    const { scope, access_token } = req.session;
+    const { operation, word } = req.body;
+    const { scope = "", access_token } = req.session;
 
     const opScope = Operations.getScope(operation);
 
@@ -71,8 +71,9 @@ router.post('/submit', function (req, res) {
     // Redirect the user to the authorization page if we do not have permission
     // to access the resource with the requested operation
     if (!scope || !scope.includes(opScope)) {
-        const allScopes = [...scope.split(/\s+/), opScope].join(' ');
-        return requestAuthorization(res, allScopes);
+        const allScopes = scope ? scope.split(/\s+/).filter(e => e) : [];
+        allScopes.push(opScope);
+        return Auth.requestAuthorization(res, allScopes);
     }
 
     const token = access_token;

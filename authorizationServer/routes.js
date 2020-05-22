@@ -246,10 +246,6 @@ router.post('/verify', (req, res) => {
     });
 });
 
-router.get('/login', (req, res) => {
-    res.render('login', req.query);
-});
-
 router.post('/login', (req, res) => {
     const {
         username,

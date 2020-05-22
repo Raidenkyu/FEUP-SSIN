@@ -1,9 +1,11 @@
 const axios = require('axios').default;
 const extendURL = require('../utils/extendURL');
 
-const clients = require('../authorizationServer/clients');
-const client_id = clients.get('client').client_id;
-const client_secret = clients.get('client').client_secret;
+const State = require('./state');
+const Clients = require('../authorizationServer/clients');
+
+const client_id = Clients.get('client').client_id;
+const client_secret = Clients.get('client').client_secret;
 
 const authorizeURL = 'http://localhost:9001/authorize';
 
