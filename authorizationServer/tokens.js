@@ -6,15 +6,15 @@ const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const accessTokenOptions = {
     expiresIn: "1h",
-    algorithm: "HS512",
+    algorithm: "RS512",
 };
 
 const refreshTokenOptions = {
-    algorithm: "HS512",
+    algorithm: "RS512",
 };
 
 const verifyOptions = {
-    algorithms: ["HS512"],
+    algorithms: ["RS512"],
 }
 
 const tokens = new Map();

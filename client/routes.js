@@ -2,7 +2,7 @@ const express = require("express");
 
 const State = require('./state');
 const Auth = require('./auth');
-const resourceServer = require('./resource');
+const ResourceServer = require('./resource');
 const Operations = require('./operations');
 
 const router = express.Router();
@@ -22,7 +22,7 @@ router.get('/callback', function (req, res) {
 
     const statePayload = State.parse(state);
 
-    if (!statePayload || !statePayload.action) {
+    if (!statePayload) {
         return res.status(400).json({
             error: 'invalid_state',
             error_message: 'Returned state is invalid',
@@ -48,7 +48,15 @@ router.post('/submit', function (req, res) {
     const { operation, word } = req.body;
     const { scope = "", access_token } = req.session;
 
+    if (!operation) {
+        return res.status(400).json({
+            error: 'missing_operation',
+            error_message: `Missing operation value`,
+        });
+    }
+
     const opScope = Operations.getScope(operation);
+    const requiresWord = Operations.requiresWord(operation);
 
     if (!opScope) {
         return res.status(400).json({
@@ -57,37 +65,48 @@ router.post('/submit', function (req, res) {
         });
     }
 
+    if (requiresWord && !word) {
+        return res.status(400).json({
+            error: 'invalid_request',
+            error_message: 'Operation requires word',
+        });
+    }
+
     // Redirect the user to the authorization page if we do not have permission
     // to access the resource with the requested operation
     if (!scope || !scope.includes(opScope)) {
         const allScopes = scope ? scope.split(/\s+/).filter(e => e) : [];
         allScopes.push(opScope);
-        return Auth.requestAuthorization(res, allScopes);
+        return Auth.requestAuthorization(res, allScopes,
+            {action: {operation, word}});
     }
 
     const token = access_token;
 
+    function relaySuccess(response) {
+        return res.status(200).json(response.data);
+    }
+
+    function relayError(error) {
+        return res.status(500).json({
+            code: error.status,
+            details: error.response.data
+        });
+    }
+
     switch (operation) {
         case "readall":
             return resourceServer.get('/', { token })
-                .then((response) => response.data).then((data) => {
-                    res.status(200).json(data);
-                });
+                .then(relaySuccess).catch(relayError);
         case "read":
             return resourceServer.get('/' + word, { token })
-                .then((response) => response.data).then((data) => {
-                    res.status(200).json(data);
-                });
+                .then(relaySuccess).catch(relayError);
         case "write":
             return resourceServer.put('/' + word, undefined, { token })
-                .then((response) => response.data).then((data) => {
-                    res.status(200).json(data);
-                });
+                .then(relaySuccess).catch(relayError);
         case "delete":
             return resourceServer.delete('/' + word, undefined, { token })
-                .then((response) => response.data).then((data) => {
-                    res.status(200).json(data);
-                });
+                .then(relaySuccess).catch(relayError);
         default:
             console.info("Invalid operation %s", operation);
             return res.sendStatus(500);

@@ -5,7 +5,7 @@ const fs = require('fs');
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const verifyOptions = {
-    algorithms: ["HS512"],
+    algorithms: ["RS512"],
 };
 
 function verify(token, callback) {
@@ -13,22 +13,35 @@ function verify(token, callback) {
 }
 
 const scoped = (scope) => function (req, res, next) {
-    const token = req.get('Authorization');
+    const authorization = req.get('Authorization');
 
-    if (!token) {
+    if (!authorization) {
         return res.status(401).json({
             error: 'missing_token',
             error_message: 'Missing authorization header',
         });
     }
 
+    const [bearer, token] = authorization.split(/\s+/);
+
+    if (bearer.toLowerCase() !== 'bearer' || !token) {
+        return res.status(401).json({
+            error: 'invalid_token_type',
+            error_message: 'Invalid access token, expected bearer token',
+        });
+    }
+
+    console.info('Access token request:\n' + token);
+
     verify(token, (err, payload) => {
-        if (err || !payload.scope) {
+        if (err) {
             return res.status(401).json({
                 error: 'invalid_token',
                 error_message: 'Invalid access token',
             });
         }
+
+        console.info('Token payload: %o', payload);
 
         if (!payload.scope.split(/\s+/.includes(scope))) {
             return res.status(401).json({

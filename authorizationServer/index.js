@@ -3,6 +3,7 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const cons = require('consolidate');
 const cors = require('cors');
+const morgan = require('morgan');
 const fs = require('fs');
 
 const router = require('./routes');
@@ -15,6 +16,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(morgan('common'));
 app.use(cors());
 app.use(session({
     secret: "cwfow131241dfeg",
@@ -51,6 +53,5 @@ app.use('/', router);
 const server = app.listen(9001, 'localhost', function () {
     const host = server.address().address;
     const port = server.address().port;
-
     console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });
