@@ -83,8 +83,6 @@ router.post('/submit', function (req, res) {
             {action: {operation, word}});
     }
 
-    const token = access_token;
-
     function relaySuccess(response) {
         return res.status(200).json(response.data);
     }
@@ -103,18 +101,20 @@ router.post('/submit', function (req, res) {
         }
     }
 
+    const session = req.session;
+
     switch (operation) {
         case "readall":
-            return ResourceServer.get('/', { token })
+            return ResourceServer.get('/', { session })
                 .then(relaySuccess).catch(relayError);
         case "read":
-            return ResourceServer.get('/' + word, { token })
+            return ResourceServer.get('/' + word, { session })
                 .then(relaySuccess).catch(relayError);
         case "write":
-            return ResourceServer.put('/' + word, undefined, { token })
+            return ResourceServer.put('/' + word, undefined, { session })
                 .then(relaySuccess).catch(relayError);
         case "delete":
-            return ResourceServer.delete('/' + word, { token })
+            return ResourceServer.delete('/' + word, { session })
                 .then(relaySuccess).catch(relayError);
         default:
             console.info("Invalid operation %s", operation);

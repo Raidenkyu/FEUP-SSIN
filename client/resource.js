@@ -9,8 +9,8 @@ const resourceServer = axios.create({
 });
 
 resourceServer.interceptors.request.use((config) =>{
-    if (config.token)
-        config.headers['Authorization'] = `Bearer ${config.token}`;
+    if (config.session && config.session.access_token)
+        config.headers['Authorization'] = `Bearer ${config.session.access_token}`;
     return config;
 });
 
@@ -28,9 +28,11 @@ resourceServer.interceptors.response.use((response) => (response),
         console.info(error + ': ' + error_message);
 
         // Don't refresh access tokens on access denied errors, for example
-        if (error !== 'invalid_grant' && error !== 'invalid_token') {
+        if (!['invalid_grant', 'invalid_token'].includes(error)) {
             return Promise.reject(err);
         }
+
+        console.info('Refreshing token...');
 
         const session = config.session;
         const { refresh_token } = session;

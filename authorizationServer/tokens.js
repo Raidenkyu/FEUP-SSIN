@@ -10,6 +10,7 @@ const accessTokenOptions = {
 };
 
 const refreshTokenOptions = {
+    expiresIn: "12h",
     algorithm: "RS256",
 };
 
