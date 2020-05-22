@@ -92,8 +92,6 @@ router.post('/submit', function (req, res) {
     function relayError(err) {
         if (err.response) {
             const {error, error_message} = err.response.data;
-            console.info('Resource request error:');
-            console.info(error + ': ' + error_message);
             return res.status(400).json({
                 code: err.response.status,
                 error, error_message,

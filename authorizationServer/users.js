@@ -20,6 +20,10 @@ const users = new Map(Object.entries({
         user_id: 'bob',
         password: '123',
     },
+    'admin': {
+        user_id: 'admin',
+        password: 'admin',
+    }
 }));
 
 module.exports = Object.freeze({

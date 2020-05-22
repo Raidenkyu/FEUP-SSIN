@@ -23,7 +23,9 @@ resourceServer.interceptors.response.use((response) => (response),
             return Promise.reject(err);
         }
 
-        const error = response.data.error;
+        const {error, error_message} = err.response.data;
+        console.info('Resource request error:');
+        console.info(error + ': ' + error_message);
 
         // Don't refresh access tokens on access denied errors, for example
         if (error !== 'invalid_grant' && error !== 'invalid_token') {
