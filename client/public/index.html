@@ -94,7 +94,7 @@
 
     button.addEventListener('click', (event) => {
       event.preventDefault();
-      
+
       const body = {};
       body.word = wordField.value;
 
@@ -123,9 +123,17 @@
       })
         .then((response) => {
           let msg = response.statusText;
-          if (response.data != "") msg += `:${response.data}`;
 
-          InsertMessage(msg);
+          if (response.headers['content-type'].includes("text/html")) {
+            window.location.href = response.request.responseURL;
+            return;
+          }
+          else {
+            if (response.data != "") msg += `:${response.data}`;
+            InsertMessage(msg);
+          }
+
+
         })
         .catch((error) => {
           InsertMessage(error);
