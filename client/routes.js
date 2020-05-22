@@ -1,29 +1,22 @@
 const express = require("express");
 const axios = require('axios').default;
 
-const clients = require('../authorizationServer/clients');
+const State = require('./state');
+const Auth = require('./auth');
+const Operations = require('./operations');
 
 const router = express.Router();
 
-const client_id = clients.get('client').client_id;
-const client_secret = clients.get('client').client_secret;
-
-const authServer = axios.create({
-    baseURL: 'http://localhost:9001',
+const resourceServer = axios.create({
+    baseURL: 'http://localhost:9002',
     timeout: 5000
 });
 
-async function redeem(code) {
-    return authServer.post('/token', {
-        grant_type: 'authorization_code',
-        client_id,
-        client_secret,
-        code
-    }).then(response => response.data);
-}
-
-// Access token, refresh token etc
-const auth = {};
+resourceServer.interceptors.request.use((config) =>{
+    if (config.token)
+        config.headers['Authorization'] = `Bearer ${config.token}`;
+    return config;
+});
 
 router.get('/callback', function (req, res) {
     const {
@@ -35,55 +28,73 @@ router.get('/callback', function (req, res) {
 
     if (error || !code) {
         // TODO: redirect to an error page or access denied page
-        res.status(400).json({ error, error_description });
+        return res.status(400).json({ error, error_description });
     }
 
-    // redeem authorization code
-    redeem(code).then(({access_token, refresh_token, scope, expires_in}) => {
-        Object.assign(auth, {access_token, refresh_token, scope, expires_in});
-    }).catch(({error, error_description}) => {
-        console.info('Failed to redeem authorization code ' + code.substr(0, 10));
-        console.info('Error: ' + error + ' | ' + error_description);
-    }).finally(() => {
+    const statePayload = State.parse(state);
+
+    if (!statePayload || !statePayload.action) {
+        return res.status(400).json({
+            error: 'invalid_state',
+            error_message: 'Returned state is invalid',
+        });
+    }
+
+    const { action } = statePayload;
+
+    return Auth.redeemCode(code, req.session).finally(() => {
+        // TODO use action
         res.redirect('/');
     });
 });
 
-router.get('/submit', function(req,res){
-    let scope = req.query.scope;
-    let word = req.query.resource;
+router.post('/submit', function (req, res) {
+    const { operation, word } = req.query;
+    const { scope, access_token } = req.session;
 
-    if(auth.scope){
-        const resourceServer = axios.create({
-            baseURL:'http://localhost:9002',
-            timeout: 5000
-        });
-        
-        resourceServer.interceptors.request.use((config) =>{
-            if(auth.access_token)
-                config.headers['Authorization'] = auth.access_token;
-            return config;
-        });
+    const opScope = Operations.getScope(operation);
 
-        if(auth.scope.includes(scope)){
-            switch(scope){
-                case "read":
-                    resourceServer.get('/' + word);
-                    break;
-                case "write":
-                    resourceServer.put('/' + word);
-                    break;
-                case "delete":
-                    resourceServer.delete('/' + word);
-                    break;
-                default:
-                    console.info("Illegal Scope name");
-            }
-        } 
-        return;
+    if (!opScope) {
+        return res.status(400).json({
+            error: 'invalid_operation',
+            error_message: `Invalid operation ${operation}`,
+        });
     }
-    
-    res.redirect(`http://localhost:9001/authorize?response_type=code&client_id=${client_id}&scope=${scope}&state=`)
 
-})
-    module.exports = router;
+    // Redirect the user to the authorization page if we do not have permission
+    // to access the resource with the requested operation
+    if (!scope || !scope.includes(opScope)) {
+        const allScopes = [...scope.split(/\s+/), opScope].join(' ');
+        return requestAuthorization(res, allScopes);
+    }
+
+    const token = access_token;
+
+    switch (operation) {
+        case "readall":
+            return resourceServer.get('/', { token })
+                .then((response) => response.data).then((data) => {
+                    res.status(200).json(data);
+                });
+        case "read":
+            return resourceServer.get('/' + word, { token })
+                .then((response) => response.data).then((data) => {
+                    res.status(200).json(data);
+                });
+        case "write":
+            return resourceServer.put('/' + word, undefined, { token })
+                .then((response) => response.data).then((data) => {
+                    res.status(200).json(data);
+                });
+        case "delete":
+            return resourceServer.delete('/' + word, undefined, { token })
+                .then((response) => response.data).then((data) => {
+                    res.status(200).json(data);
+                });
+        default:
+            console.info("Invalid operation %s", operation);
+            return res.sendStatus(500);
+    }
+});
+
+module.exports = router;

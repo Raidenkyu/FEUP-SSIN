@@ -61,7 +61,7 @@
         </div>
       </div>
     </nav>
-    <form action="/login" method="post">
+    <form id="login" action="/login" method="post">
       <div class="container">
         <label for="username"><b>Username</b></label>
         <input type="text" placeholder="Enter Username" name="username" required/>
@@ -75,7 +75,8 @@
       </div>
     </form>
     <script>
-      document.getElementById('callback').setAttribute('value', urlParams.get('callback'));
+      const callback = new URLSearchParams(window.location.href);
+      $('#callback').val(callback);
     </script>
   </body>
 </html>

@@ -6,16 +6,9 @@ const users = require('./users');
 const authcodes = require('./codes');
 const tokens = require('./tokens');
 
-const router = express.Router();
+const extendURL = require('../utils/extendURL');
 
-function extendURL(url, extraParams) {
-    if (!(url instanceof URL)) url = new URL(url);
-    const params = new URLSearchParams(url.search);
-    for (const [key, value] of Object.entries(extraParams))
-        params.set(key, value);
-    url.search = params;
-    return url;
-}
+const router = express.Router();
 
 // 4.1.1. Authorization request
 router.get('/authorize', (req, res) => {

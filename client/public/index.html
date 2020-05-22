@@ -45,11 +45,11 @@
         <form method="GET" action="/submit">
           <label for="resource">Resource:</label>
           <input id="resource" name="resource"></input><br>
-          <input type="radio" id="read" name="scope" value="read">
+          <input type="radio" id="read" name="operation" value="read">
           <label for="read">Read</label><br>
-          <input type="radio" id="write" name="scope" value="write">
+          <input type="radio" id="write" name="operation" value="write">
           <label for="write">Write</label><br>
-          <input type="radio" id="delete" name="scope" value="delete">
+          <input type="radio" id="delete" name="operation" value="delete">
           <label for="delete">Delete</label><br>
           <button id="postOperation" class="btn btn-default">Send Operation</button>
         </form>
