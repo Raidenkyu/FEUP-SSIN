@@ -32,7 +32,7 @@
     <div class="container">
       <div class="jumbotron">
         <div class="alert alert-info" role="alert">
-            This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.
+          This is the shell for the <strong>OAuth Client</strong>. This provides no actual functionality.
         </div>
         <p>Access token value: <span class="label label-danger" id="token"><%- access_token ? access_token : 'NONE' %></span></p>
         <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
@@ -44,15 +44,17 @@
 
       <div class="jumbotron">
         <form method="POST" action="/submit">
-          <label for="resource">Resource:</label>
-          <input id="resource" name="resource"></input><br>
+          <label for="word">Word:</label>
+          <input id="word" name="word"></input><br>
+          <input type="radio" id="readall" name="operation" value="readall">
+          <label for="readall">Read all words</label><br>
           <input type="radio" id="read" name="operation" value="read">
-          <label for="read">Read</label><br>
+          <label for="read">Read (check if word exists)</label><br>
           <input type="radio" id="write" name="operation" value="write">
-          <label for="write">Write</label><br>
+          <label for="write">Write new word</label><br>
           <input type="radio" id="delete" name="operation" value="delete">
-          <label for="delete">Delete</label><br>
-          <button class="btn btn-default">Send Operation</button>
+          <label for="delete">Delete word</label><br>
+          <button class="btn btn-default">Submit</button>
         </form>
       </div>
     </div>

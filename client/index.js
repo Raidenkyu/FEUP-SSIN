@@ -36,8 +36,8 @@ app.use('/', express.static('./client/public', {
 
 app.use('/', router);
 
-var server = app.listen(9000, 'localhost', function () {
-    var host = server.address().address;
-    var port = server.address().port;
+const server = app.listen(9000, 'localhost', function () {
+    const host = server.address().address;
+    const port = server.address().port;
     console.log('OAuth Client is listening at http://%s:%s', host, port);
 });

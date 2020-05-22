@@ -53,6 +53,5 @@ app.use('/', router);
 const server = app.listen(9001, 'localhost', function () {
     const host = server.address().address;
     const port = server.address().port;
-
     console.log('OAuth Authorization Server is listening at http://%s:%s', host, port);
 });

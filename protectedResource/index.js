@@ -24,8 +24,7 @@ app.use('/', express.static('./protectedResource/public'));
 app.use('/api', router);
 
 const server = app.listen(9002, 'localhost', function () {
-    var host = server.address().address;
-    var port = server.address().port;
-
+    const host = server.address().address;
+    const port = server.address().port;
     console.log('OAuth Resource Server is listening at http://%s:%s', host, port);
 });
