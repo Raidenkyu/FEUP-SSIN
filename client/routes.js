@@ -48,6 +48,13 @@ router.get('/callback', function (req, res) {
     });
 });
 
+// Relay for a redirection to the authorization server's /authorize endpoint,
+// required because we need to generate a state server-side
+router.get('/authorize', function (req, res) {
+    const { scope = "read write delete" } = req.query;
+    return requestAuthorization(res, scope);
+});
+
 router.post('/submit', function (req, res) {
     const { operation, word } = req.query;
     const { scope, access_token } = req.session;
