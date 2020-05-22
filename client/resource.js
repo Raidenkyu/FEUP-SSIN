@@ -15,17 +15,19 @@ resourceServer.interceptors.request.use((config) =>{
 });
 
 resourceServer.interceptors.response.use((response) => (response),
-    (error) => {
-        const { config, response } = error;
+    (err) => {
+        const { config, response } = err;
 
         // Return any error which is not due to authentication back to the calling service
         if (response.status !== 401) {
-            return Promise.reject(error);
+            return Promise.reject(err);
         }
 
+        const error = response.data.error;
+
         // Don't refresh access tokens on access denied errors, for example
-        if (response.data.error !== 'invalid_grant') {
-            return Promise.reject(error);
+        if (error !== 'invalid_grant' && error !== 'invalid_token') {
+            return Promise.reject(err);
         }
 
         const session = config.session;

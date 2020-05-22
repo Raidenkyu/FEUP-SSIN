@@ -89,11 +89,14 @@ router.post('/submit', function (req, res) {
         return res.status(200).json(response.data);
     }
 
-    function relayError(error) {
-        if (error.response) {
-            return res.status(500).json({
-                code: error.response.status,
-                details: error.response.data,
+    function relayError(err) {
+        if (err.response) {
+            const {error, error_message} = err.response.data;
+            console.info('Resource request error:');
+            console.info(error + ': ' + error_message);
+            return res.status(400).json({
+                code: err.response.status,
+                error, error_message,
             });
         } else {
             return res.status(500).json({

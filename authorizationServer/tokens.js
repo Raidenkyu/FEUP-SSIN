@@ -5,7 +5,7 @@ const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const accessTokenOptions = {
-    expiresIn: "1h",
+    expiresIn: "20s",
     algorithm: "RS256",
 };
 
