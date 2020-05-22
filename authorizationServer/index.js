@@ -19,9 +19,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('common'));
 app.use(cors());
 app.use(session({
-    secret: "cwfow131241dfeg",
-    resave: false,
+    secret: "very_secret_auth",
+    resave: true,
     saveUninitialized: true,
+    cookie: {httpOnly: true, secure: false},
 }));
 
 app.engine('html', cons.underscore);

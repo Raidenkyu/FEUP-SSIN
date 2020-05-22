@@ -38,7 +38,7 @@ router.get('/authorize', (req, res) => {
     if (!Clients.verifyScope(client_id, scope)) {
         return res.redirect(303, extendURL(redirect_uri, {
             error: 'invalid_scope',
-            error_description: 'Scope not allowed for this client',
+            error_description: `Scope not allowed for this client: ${scope}`,
             ...(state && {state})
         }));
     }
@@ -107,7 +107,7 @@ router.post('/authorize', (req, res) => {
     if (!Clients.verifyScope(client_id, scope)) {
         return res.redirect(303, extendURL(redirect_uri, {
             error: 'invalid_scope',
-            error_description: 'Scope not allowed for this client',
+            error_description: `Scope not allowed for this client: '${scope}'`,
             ...(state && {state})
         }));
     }
@@ -185,19 +185,21 @@ function middlewareAuthorizationCode(req, res) {
         });
     }
 
-    const { token, refreshToken, expiresIn } = Tokens.generate({
+    const payload = {
         client_id: grant.client_id,
         user_id: grant.user_id,
         scope: grant.scope,
-    });
+    };
+
+    const { token, refreshToken, expiresIn, scope } = Tokens.generate(payload);
 
     return res.status(200).json({
         access_token: token,
         refresh_token: refreshToken,
         expires_in: expiresIn,
         token_type: 'bearer',
-        scope: grant.scope,
-    })
+        scope: scope,
+    });
 }
 
 function middlewareRefreshToken(req, res) {
@@ -219,7 +221,23 @@ function middlewareRefreshToken(req, res) {
         });
     }
 
-    return Tokens.refresh(refresh_token);
+    try {
+        // refreshToken is the new one
+        const { token, refreshToken, expiresIn, scope } = Tokens.refresh(refresh_token);
+
+        return res.status(200).json({
+            access_token: token,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
+            token_type: 'bearer',
+            scope: scope,
+        });
+    } catch (err) {
+        return res.status(400).json({
+            error: 'invalid_grant',
+            error_description: 'Invalid or expired refresh token',
+        });
+    }
 }
 
 router.post('/verify', (req, res) => {
@@ -282,38 +300,6 @@ router.get('/introspection', (req, res) => {
     res.status(200).json({
         public_key: publicKEY,
     });
-});
-
-// Deprecated, move to /token with grant_type == refresh_token
-router.post('/refresh', (req, res) => {
-    const clientId = req.body.clientId || '';
-    const clientSecret = req.body.clientSecret || '';
-    const refreshToken = req.body.refreshToken || '';
-
-    const payload = Clients.filter(
-        client => (client.client_id === clientId && client.client_secret === clientSecret)
-    )[0];
-
-    if ((payload != null) && (refreshToken != null) && (refreshToken in Tokens)) {
-        const token = jwt.sign(payload, privateKEY, signOptions)
-
-        const response = {
-            token: token,
-        };
-
-        Tokens[refreshToken].token = token;
-        res.status(200).json(response);
-    }
-    else if (payload == null) {
-        res.status(404).json({
-            message: "User not found",
-        });
-    }
-    else {
-        res.status(404).json({
-            message: "Invalid refresh token",
-        });
-    }
 });
 
 module.exports = router;

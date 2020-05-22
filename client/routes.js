@@ -77,9 +77,9 @@ router.post('/submit', function (req, res) {
     // Redirect the user to the authorization page if we do not have permission
     // to access the resource with the requested operation
     if (!scope || !scope.includes(opScope)) {
-        const allScopes = scope ? scope.split(/\s+/).filter(e => e) : [];
+        const allScopes = scope ? scope.trim().split(/\s+/).filter(e => e) : [];
         allScopes.push(opScope);
-        return Auth.requestAuthorization(res, allScopes,
+        return Auth.requestAuthorization(res, allScopes.join(' '),
             {action: {operation, word}});
     }
 
@@ -90,10 +90,16 @@ router.post('/submit', function (req, res) {
     }
 
     function relayError(error) {
-        return res.status(500).json({
-            code: error.status,
-            details: error.response.data
-        });
+        if (error.response) {
+            return res.status(500).json({
+                code: error.response.status,
+                details: error.response.data,
+            });
+        } else {
+            return res.status(500).json({
+                error: 'Internal Server Error',
+            });
+        }
     }
 
     switch (operation) {
@@ -107,7 +113,7 @@ router.post('/submit', function (req, res) {
             return ResourceServer.put('/' + word, undefined, { token })
                 .then(relaySuccess).catch(relayError);
         case "delete":
-            return ResourceServer.delete('/' + word, undefined, { token })
+            return ResourceServer.delete('/' + word, { token })
                 .then(relaySuccess).catch(relayError);
         default:
             console.info("Invalid operation %s", operation);

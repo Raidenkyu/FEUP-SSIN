@@ -45,12 +45,25 @@ function requestAuthorization(res, scope, action) {
     }));
 }
 
-function refreshAccessToken(refresh_token) {
+function refreshAccessToken(refresh_token, session) {
     return authServer.post('/token', {
         grant_type: 'refresh_token',
         client_id,
         client_secret,
-        code: refresh_token,
+        refresh_token,
+    }).then(response => response.data).then((data) => {
+        const {access_token, refresh_token, scope, expires_in} = data;
+        session.access_token = access_token;
+        session.refresh_token = refresh_token;
+        session.scope = scope;
+        session.expires_in = expires_in;
+        return data;
+    }).catch((err) => {
+        if (!err.response) return Promise.reject(err);
+        const {error, error_description} = err.response.data;
+        console.info('Failed to redeem authorization code ' + code.substr(0, 10));
+        console.info('Error: ' + error + ' | ' + error_description);
+        return Promise.reject({error, error_description});
     });
 }
 

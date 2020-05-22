@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 
 const words = require('./words');
+const Users = require('./users');
 
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
@@ -45,14 +46,23 @@ const scoped = (scope) => function (req, res, next) {
 
         console.info('Token payload: %o', payload);
 
-        if (!payload.scope || !payload.scope.split(/\s+/).includes(scope)) {
+        const tokenScopes = payload.scope && payload.scope.split(/\s+/);
+
+        if (!tokenScopes || !tokenScopes.includes(scope)) {
             return res.status(401).json({
-                error: 'invalid_scope',
-                error_message: 'Invalid scope',
+                error: 'access_denied',
+                error_message: 'User did not grant authorization to perform this operation',
             });
         }
 
-        // TODO check user
+        const userScopes = payload.user_id && Users.get(payload.user_id);
+
+        if (!userScopes || !userScopes.includes(scope)) {
+            return res.status(401).json({
+                error: 'access_denied',
+                error_message: 'User does not have access to this resource',
+            });
+        }
 
         req.authorization = payload;
         next();
