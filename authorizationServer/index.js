@@ -36,7 +36,9 @@ app.get('/', function(_req, res) {
 	res.render('index', {clients: clients.getAll(), authServer: authServer});
 });
 
-app.use('/', express.static('./authorizationServer/public'));
+app.use('/', express.static('./authorizationServer/public', {
+    extensions: ['html', 'htm'],
+}));
 
 app.use('/', router);
 
