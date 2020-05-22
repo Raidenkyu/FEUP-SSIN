@@ -5,7 +5,7 @@ const fs = require('fs');
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
 
 const verifyOptions = {
-    algorithms: ["RS512"],
+    algorithms: ["RS256"],
 };
 
 function verify(token, callback) {
