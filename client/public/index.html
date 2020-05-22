@@ -37,12 +37,11 @@
         <p>Access token value: <span class="label label-danger" id="token"><%- access_token ? access_token : 'NONE' %></span></p>
         <p>Scope value: <span class="label label-danger"><%- scope ? scope : 'NONE' %></span></p>
         <p>Refresh token value: <span class="label label-danger"><%- refresh_token ? refresh_token : 'NONE' %></span></p>
-        <button id="getToken" class="btn btn-default" href="/authorize" >Get OAuth Token</button>
-        <button id="getResource" class="btn btn-default" href="/fetch_resource" >Get Protected Resource</button>
+        <button class="btn btn-default" href="/authorize" >Get OAuth Token</button>
       </div>
 
       <div class="jumbotron">
-        <form action="/submit">
+        <form method="POST" action="/submit">
           <label for="resource">Resource:</label>
           <input id="resource" name="resource"></input><br>
           <input type="radio" id="read" name="operation" value="read">
@@ -51,7 +50,7 @@
           <label for="write">Write</label><br>
           <input type="radio" id="delete" name="operation" value="delete">
           <label for="delete">Delete</label><br>
-          <button id="postOperation" class="btn btn-default">Send Operation</button>
+          <button class="btn btn-default">Send Operation</button>
         </form>
       </div>
     </div>

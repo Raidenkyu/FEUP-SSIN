@@ -1,10 +1,10 @@
 const express = require('express');
 const url = require('url');
 
-const clients = require('./clients');
-const users = require('./users');
-const authcodes = require('./codes');
-const tokens = require('./tokens');
+const Clients = require('./clients');
+const Users = require('./users');
+const Authcodes = require('./codes');
+const Tokens = require('./tokens');
 
 const extendURL = require('../utils/extendURL');
 
@@ -21,7 +21,7 @@ router.get('/authorize', (req, res) => {
     } = req.query;
 
     const { user } = req.session;
-    const client = clients.get(client_id);
+    const client = Clients.get(client_id);
 
     // 4.1.2.1. The client is invalid so we don't have a redirect uri
     if (!client) {
@@ -35,7 +35,7 @@ router.get('/authorize', (req, res) => {
     const redirect_uri = new URL(client.redirect_uri);
 
     // 4.1.2.1. Check scope (invalid_scope)
-    if (!clients.verifyScope(client_id, scope)) {
+    if (!Clients.verifyScope(client_id, scope)) {
         return res.redirect(303, extendURL(redirect_uri, {
             error: 'invalid_scope',
             error_description: 'Scope not allowed for this client',
@@ -88,7 +88,7 @@ router.post('/authorize', (req, res) => {
     } = req.body;
 
     const { user } = req.session;
-    const client = clients.get(client_id);
+    const client = Clients.get(client_id);
 
     // Check everything again...
 
@@ -104,7 +104,7 @@ router.post('/authorize', (req, res) => {
     const redirect_uri = new URL(client.redirect_uri);
 
     // 4.1.2.1. Check scope (invalid_scope)
-    if (!clients.verifyScope(client_id, scope)) {
+    if (!Clients.verifyScope(client_id, scope)) {
         return res.redirect(303, extendURL(redirect_uri, {
             error: 'invalid_scope',
             error_description: 'Scope not allowed for this client',
@@ -115,7 +115,7 @@ router.post('/authorize', (req, res) => {
     // 4.1.2 Generate the auth code (bound to the user, client and scope)
     // We don't bind the code to the redirect uri because the redirect uri
     // is unique for each client (simplification)
-    const code = authcodes.generate({
+    const code = Authcodes.generate({
         user_id: user.user_id,
         client_id: client.client_id,
         scope: scope,
@@ -165,7 +165,7 @@ function middlewareAuthorizationCode(req, res) {
         code,
     } = req.body;
 
-    const client = clients.get(client_id);
+    const client = Clients.get(client_id);
 
     // 5.2. The client is invalid so we don't have a redirect uri
     if (!client || client_secret !== client.client_secret) {
@@ -175,7 +175,7 @@ function middlewareAuthorizationCode(req, res) {
         });
     }
 
-    const grant = authcodes.get(code);
+    const grant = Authcodes.get(code);
 
     // 5.2. Invalid authorization code (invalid_grant)
     if (!grant) {
@@ -185,7 +185,7 @@ function middlewareAuthorizationCode(req, res) {
         });
     }
 
-    const { token, refreshToken, expiresIn } = tokens.generate({
+    const { token, refreshToken, expiresIn } = Tokens.generate({
         client_id: grant.client_id,
         user_id: grant.user_id,
         scope: grant.scope,
@@ -209,7 +209,7 @@ function middlewareRefreshToken(req, res) {
         refresh_token,
     } = req.body;
 
-    const client = clients.get(client_id);
+    const client = Clients.get(client_id);
 
     // 5.2. The client is invalid so we don't have a redirect uri
     if (!client || client_secret !== client.client_secret) {
@@ -232,7 +232,7 @@ router.post('/verify', (req, res) => {
         });
     }
 
-    const payload = tokens.verify(token);
+    const payload = Tokens.verify(token);
 
     if (!payload) {
         return res.status(400).json({
@@ -264,7 +264,7 @@ router.post('/login', (req, res) => {
         });
     }
 
-    const user = users.get(username);
+    const user = Users.get(username);
 
     if (!user || user.password !== password) {
         return res.status(401).json({
@@ -294,18 +294,18 @@ router.post('/refresh', (req, res) => {
     const clientSecret = req.body.clientSecret || '';
     const refreshToken = req.body.refreshToken || '';
 
-    const payload = clients.filter(
+    const payload = Clients.filter(
         client => (client.client_id === clientId && client.client_secret === clientSecret)
     )[0];
 
-    if ((payload != null) && (refreshToken != null) && (refreshToken in tokens)) {
+    if ((payload != null) && (refreshToken != null) && (refreshToken in Tokens)) {
         const token = jwt.sign(payload, privateKEY, signOptions)
 
         const response = {
             token: token,
         };
 
-        tokens[refreshToken].token = token;
+        Tokens[refreshToken].token = token;
         res.status(200).json(response);
     }
     else if (payload == null) {

@@ -6,7 +6,7 @@ const cors = require('cors');
 const fs = require('fs');
 
 const router = require('./routes');
-const clients = require('./clients');
+const Clients = require('./clients');
 
 const privateKEY = fs.readFileSync('keys/private.pem', 'utf8');
 const publicKEY = fs.readFileSync('keys/public.pem', 'utf8');
@@ -16,7 +16,11 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use(session({secret:"cwfow131241dfeg",resave:false,saveUninitialized:true}));
+app.use(session({
+    secret: "cwfow131241dfeg",
+    resave: false,
+    saveUninitialized: true,
+}));
 
 app.engine('html', cons.underscore);
 app.set('view engine', 'html');
@@ -33,7 +37,9 @@ const authServer = Object.freeze({
 });
 
 app.get('/', function(_req, res) {
-	res.render('index', {clients: clients.getAll(), authServer: authServer});
+    const clients = Clients.getAll();
+
+	res.render('index', {clients, authServer});
 });
 
 app.use('/', express.static('./authorizationServer/public', {
