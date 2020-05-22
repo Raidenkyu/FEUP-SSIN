@@ -73,7 +73,8 @@ router.post('/submit', function (req, res) {
     if (!scope || !scope.includes(opScope)) {
         const allScopes = scope ? scope.split(/\s+/).filter(e => e) : [];
         allScopes.push(opScope);
-        return Auth.requestAuthorization(res, allScopes);
+        return Auth.requestAuthorization(res, allScopes,
+            {action: {operation, word}});
     }
 
     const token = access_token;

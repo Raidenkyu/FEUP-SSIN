@@ -1,6 +1,7 @@
 const express = require("express");
 const cons = require('consolidate');
 const bodyParser = require('body-parser');
+const morgan = require('morgan');
 const cors = require('cors');
 const axios = require('axios').default;
 
@@ -9,7 +10,8 @@ const words = require('./words');
 
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true })); // support form-encoded bodies (for bearer tokens)
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(morgan('common'));
 app.use(cors());
 
 app.engine('html', cons.underscore);
