@@ -27,6 +27,7 @@ app.use(session({
     saveUninitialized: true,
     maxAge: null,
     cookie: {httpOnly: true, secure: false},
+    name: 'connect.sid.auth'
 }));
 
 app.engine('html', cons.underscore);

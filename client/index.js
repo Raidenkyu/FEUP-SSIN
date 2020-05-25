@@ -22,6 +22,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {httpOnly: true, secure: false},
+    name: 'connect.sid.client'
 }));
 
 app.engine('html', cons.underscore);

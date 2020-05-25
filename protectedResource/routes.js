@@ -71,19 +71,13 @@ const scoped = (scope) => function (req, res, next) {
 
 const router = express.Router();
 
-// Verify whether word exists
-router.get('/exists/:word', scoped('read'), function(req, res) {
-    const { word } = req.params;
-    return res.sendStatus(words.has(word) ? 204 : 404);
-});
-
 router.get('/', scoped('read'), function(req, res) {
     return res.status(200).json(Array.from(words));
 })
 
 router.get('/:word', scoped('read'), function(req, res) {
     const { word } = req.params;
-    return res.sendStatus(501);
+    return res.sendStatus(words.has(word) ? 204 : 404);
 });
 
 router.put('/:word', scoped('write'), function(req, res) {
