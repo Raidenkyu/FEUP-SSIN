@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-  <title>OAuth Component: OAuth Client</title>
+  <title>Client</title>
 
   <!-- Bootstrap -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -37,42 +37,11 @@
     <div class="container">
       <div class="navbar-header">
         <a class="navbar-brand" href="/">OAuth Component:
-          <label class="label label-primary">OAuth Client</label>
+          <label class="label label-primary">OAuth Client Resource Shell</label>
         </a>
       </div>
     </div>
   </nav>
-
-  <div class="container">
-    <div id="tokens" class="jumbotron">
-      <div class="alert alert-info" role="alert">
-        This is the shell for the <strong>OAuth Client</strong>.
-        The actual client functionality is in this page as well.
-        The tokens below are merely an introspection of the server's state.
-        This page does not need access to them to work properly.
-      </div>
-      <p>Access token value:
-        <span class="label label-danger"><%- access_token
-          ? (access_token.slice(0, 15) + '...' + access_token.slice(-15))
-          : 'NONE' %></span>
-      </p>
-      <p>Refresh token value:
-        <span class="label label-danger"><%- refresh_token
-          ? (refresh_token.slice(0, 15) + '...' + refresh_token.slice(-15))
-          : 'NONE' %></span>
-      </p>
-      <p>Access token payload:
-        <code class="label label-danger"><%- payload
-          ? JSON.stringify(payload, null, 4)
-          : 'NONE' %></code>
-      </p>
-      <p>Scope value: <span class="label label-danger"><%- scope
-        ? scope
-        : 'NONE' %></span></p>
-      <a href="/authorize">
-        <button class="btn btn-default">Get OAuth Token</button>
-      </a>
-    </div>
 
     <div class="jumbotron">
       <form id="operationForm" method="POST" action="/submit">
@@ -111,7 +80,6 @@
     const readallOption = document.getElementById("readall");
     const writeOption = document.getElementById("write");
     const deleteOption = document.getElementById("delete");
-
 
     const InsertMessage = (msg) => {
       const date = new Date();
@@ -163,7 +131,6 @@
         const errorDescription = `${error.response.status}: ${error.response.data.error}: ${error.response.data.error_message}`;
         InsertMessage(errorDescription);
       });
-    });
   </script>
 </body>
 

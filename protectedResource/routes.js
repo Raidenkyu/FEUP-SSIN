@@ -44,8 +44,6 @@ const scoped = (scope) => function (req, res, next) {
             });
         }
 
-        console.info('Token payload: %o', payload);
-
         const tokenScopes = payload.scope && payload.scope.split(/\s+/);
 
         if (!tokenScopes || !tokenScopes.includes(scope)) {

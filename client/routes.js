@@ -33,7 +33,7 @@ router.get('/callback', function (req, res) {
 
     return Auth.redeemCode(code, req.session).finally(() => {
         // TODO use action
-        res.redirect('/');
+        res.redirect('/resource');
     });
 });
 
